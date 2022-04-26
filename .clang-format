@@ -1,0 +1,8 @@
+BasedOnStyle: LLVM
+PointerAlignment: Left
+AlwaysBreakTemplateDeclarations: Yes
+AllowShortFunctionsOnASingleLine: InlineOnly
+UseTab: Never
+BinPackArguments: false
+BinPackParameters: false
+PackConstructorInitializers: CurrentLine
