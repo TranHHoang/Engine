@@ -11,8 +11,6 @@ public:
   virtual ~App();
 
   void start();
-  void handleEvents();
-  virtual void onUpdate() = 0;
 
 protected:
   Unique<Window::Window> _window;

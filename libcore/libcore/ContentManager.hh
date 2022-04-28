@@ -51,7 +51,7 @@ ContentManager<Renderer::Texture::Texture>::load(
     std::string_view path,
     Args&&... args) {
   auto p = std::string{path};
-  if (!_resources.contains(p)) {
+  if (not _resources.contains(p)) {
     Ref<Renderer::Texture::Texture> texture =
         create(factory, context, std::forward<Args>(args)...);
     texture->setImage(path);

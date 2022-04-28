@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 
-#include <glad/gl.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <libcore/lib/Assert.hh>
@@ -14,7 +13,10 @@ OpenGLShader::OpenGLShader(const UniformLayout& layout)
     : Shader::Shader{layout} {
   std::string vertexSrc = readFile("assets/shaders/opengl/Shader.vert");
   std::string fragmentSrc = readFile("assets/shaders/opengl/Shader.frag");
-  if (!buildShaderProgram(vertexSrc, fragmentSrc).ifSome(&_programID)) {
+
+  if (auto programID = buildShaderProgram(vertexSrc, fragmentSrc)) {
+    _programID = programID.value();
+  } else {
     Logger::error("Failed to create OpenGL shader program");
     assert(false);
   }
@@ -37,18 +39,17 @@ void OpenGLShader::setMat4(std::string_view name, const Mat4& mat) {
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-Option<GLuint>
+std::optional<GLuint>
 OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
                                  std::string_view fragmentSrc) const {
-  GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-  GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  auto vertexShader = compileShader(GL_VERTEX_SHADER, vertexSrc);
+  auto fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSrc);
 
-  if (compileShader(vertexShader, vertexSrc).ifSome(&vertexShader) &&
-      compileShader(fragmentShader, fragmentSrc).ifSome(&fragmentShader)) {
+  if (vertexShader && fragmentShader) {
     GLuint programID = glCreateProgram();
 
-    glAttachShader(programID, vertexShader);
-    glAttachShader(programID, fragmentShader);
+    glAttachShader(programID, vertexShader.value());
+    glAttachShader(programID, fragmentShader.value());
     glLinkProgram(programID);
 
     GLint isLinked = 0;
@@ -61,8 +62,8 @@ OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
       glGetProgramInfoLog(programID, maxLength, &maxLength, infoLog.data());
 
       glDeleteProgram(programID);
-      glDeleteShader(vertexShader);
-      glDeleteShader(fragmentShader);
+      glDeleteShader(vertexShader.value());
+      glDeleteShader(fragmentShader.value());
 
       Logger::error("{}", infoLog.data());
       assert(false && "OpenGLShader linking failure!");
@@ -70,20 +71,19 @@ OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
       return {};
     }
 
-    glDetachShader(programID, vertexShader);
-    glDetachShader(programID, fragmentShader);
+    glDetachShader(programID, vertexShader.value());
+    glDetachShader(programID, fragmentShader.value());
 
     return programID;
-  } else {
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
   }
 
   return {};
 }
 
-Option<GLuint> OpenGLShader::compileShader(GLuint shader,
-                                           std::string_view src) const {
+std::optional<GLuint> OpenGLShader::compileShader(GLuint shaderType,
+                                                  std::string_view src) const {
+  GLuint shader = glCreateShader(shaderType);
+
   const GLchar* source = src.data();
   glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
@@ -99,6 +99,7 @@ Option<GLuint> OpenGLShader::compileShader(GLuint shader,
 
     Logger::error("{}", infoLog.data());
     assert(false && "OpenGLShader compilation failure!");
+    glDeleteShader(shader);
 
     return {};
   }

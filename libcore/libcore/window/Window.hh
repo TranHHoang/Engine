@@ -1,6 +1,7 @@
 #pragma once
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 #include <thread>
 
 #include <libcore/ecs/Scene.hh>
@@ -20,20 +21,20 @@ public:
   virtual ~Window() = default;
 
   bool create(Renderer::API api);
-  void resize(uint32_t width, uint32_t height);
+  void startEventLoop();
   void destroy();
 
   ECS::Scene& activeScene() { return _activeScene; }
-  Queue<Event::EventType>& eventQueue() { return _windowFactory->eventQueue(); }
   void setRunning(bool running) { _running = running; }
 
 private:
   Props _props;
   Unique<Factory> _windowFactory;
   Unique<Renderer::Factory> _rendererFactory;
-  Ref<Renderer::Target> _defaultTarget;
+  Queue<Event::EventType> _eventQueue;
   ECS::Scene _activeScene;
   std::thread _renderingThread;
   std::atomic<bool> _running;
+  std::mutex _eventQueueMutex;
 };
 } // namespace Engine::Window

@@ -1,4 +1,5 @@
 #include <any>
+#include <optional>
 
 #include <libcore/lib/Assert.hh>
 #include <libcore/lib/Logger.hh>
@@ -114,47 +115,43 @@ static Key toKey(WPARAM key) {
   return Key::Null;
 }
 
-LRESULT CALLBACK WndProc(HWND hwnd,
-                         UINT message,
-                         WPARAM wparam,
-                         LPARAM lparam) {
-  WindowsFactory* pThis;
-
-  if (message == WM_NCCREATE) {
-    pThis = static_cast<WindowsFactory*>(
+static LRESULT CALLBACK WndProc(HWND hwnd,
+                                UINT msg,
+                                WPARAM wparam,
+                                LPARAM lparam) {
+  switch (msg) {
+  case WM_ERASEBKGND:
+    return TRUE;
+  case WM_NCCREATE: {
+    auto factoryPtr = static_cast<WindowsFactory*>(
         reinterpret_cast<CREATESTRUCT*>(lparam)->lpCreateParams);
     SetLastError(0);
     if (!SetWindowLongPtr(
-            hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis))) {
+            hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(factoryPtr))) {
       if (GetLastError() != 0)
         return FALSE;
     }
-  } else {
-    pThis = reinterpret_cast<WindowsFactory*>(
-        GetWindowLongPtr(hwnd, GWLP_USERDATA));
-  }
-
-  switch (message) {
-  case WM_DESTROY:
-    PostQuitMessage(0);
     break;
   }
+  case WM_CLOSE:
+  case WM_KEYUP:
+  case WM_KEYDOWN:
+  case WM_SIZE:
+    if (auto factoryPtr = reinterpret_cast<WindowsFactory*>(
+            GetWindowLongPtr(hwnd, GWLP_USERDATA)))
+      return factoryPtr->wndProc(hwnd, msg, wparam, lparam);
+  }
+  return DefWindowProc(hwnd, msg, wparam, lparam);
+}
 
-  if (pThis)
-    return pThis->wndProc(hwnd, message, wparam, lparam);
-  return FALSE;
-} // namespace Engine::Window
-
-LRESULT CALLBACK WindowsFactory::wndProc(HWND hwnd,
-                                         UINT message,
+LRESULT CALLBACK WindowsFactory::wndProc(HWND,
+                                         UINT msg,
                                          WPARAM wparam,
                                          LPARAM lparam) {
   using namespace Event;
-  EventType type;
-  switch (message) {
-  case WM_CLOSE:
-    type = WindowClosed{};
-    break;
+
+  EventType type = WindowClosed{};
+  switch (msg) {
   case WM_KEYUP:
     type = KeyUp{toKey(wparam)};
     break;
@@ -164,16 +161,12 @@ LRESULT CALLBACK WindowsFactory::wndProc(HWND hwnd,
   case WM_SIZE:
     type = WindowResized{LOWORD(lparam), HIWORD(lparam)};
     break;
-  case WM_ERASEBKGND:
-    return TRUE;
+  default:
+    break;
   }
 
-  if (!std::holds_alternative<std::monostate>(type)) {
-    _eventQueue.push(type);
-    return TRUE;
-  }
-
-  return DefWindowProc(hwnd, message, wparam, lparam);
+  _eventQueue.push(type);
+  return TRUE;
 }
 
 bool WindowsFactory::createNativeWindow(const Props& props) {
@@ -187,7 +180,7 @@ bool WindowsFactory::createNativeWindow(const Props& props) {
       .lpszClassName = props.title.c_str(),
   };
 
-  if (!RegisterClass(&wc))
+  if (not RegisterClass(&wc))
     return false;
 
   _hWnd = CreateWindow(props.title.c_str(),
@@ -209,13 +202,16 @@ void WindowsFactory::showNativeWindow() const {
   UpdateWindow(_hWnd);
 }
 
-Queue<Event::EventType>& WindowsFactory::eventQueue() {
-  MSG msg;
-  if (GetMessage(&msg, NULL, 0, 0) > 0) {
-    DispatchMessage(&msg);
+Event::EventType WindowsFactory::nextEvent() {
+  // Blocking until we receive the desired events
+  while (true) {
+    if (MSG msg; GetMessage(&msg, NULL, 0, 0) > 0) {
+      DispatchMessage(&msg);
+    }
+    if (std::optional<Event::EventType> event = _eventQueue.pop()) {
+      return event.value();
+    }
   }
-
-  return _eventQueue;
 }
 
 void WindowsFactory::destroyNativeWindow() {
