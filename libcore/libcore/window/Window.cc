@@ -1,7 +1,9 @@
 #include <condition_variable>
-#include <mutex>
+#include <optional>
+#include <variant>
 
 #include <libcore/ecs/System.hh>
+#include <libcore/lib/Utils.hh>
 #include <libcore/renderer/Renderer.hh>
 #include <libcore/window/Window.hh>
 
@@ -32,22 +34,40 @@ bool Window::create(Renderer::API api) {
 
       Logger::info("Initiating default rendering target (swapchain)",
                    toString(api));
-      _defaultTarget =
+      auto defaultTarget =
           _rendererFactory->createDefaultTarget({_props.width, _props.height});
 
       Logger::info("Initiating systems", toString(api));
       Vector<Unique<ECS::System::System>> systems;
       systems.add(
-          createUnique<ECS::System::Rendering>(*renderer, _defaultTarget));
+          createUnique<ECS::System::Rendering>(*renderer, defaultTarget));
       systems.add(createUnique<ECS::System::Spin>());
 
       {
-        std::scoped_lock lock{mutex};
+        std::scoped_lock lock{_eventQueueMutex};
         initDone = true;
-        cv.notify_one();
       }
+      cv.notify_one();
 
       while (_running) {
+        using namespace Event;
+        {
+          std::scoped_lock lock{_eventQueueMutex};
+          auto visitor = overload{
+              [&](const WindowResized& e) {
+                defaultTarget->resize(e.width, e.height);
+                return true;
+              },
+              [](const auto&) { return false; },
+          };
+
+          for (std::optional<Event::EventType> event;
+               (event = _eventQueue.peek()) &&
+               std::visit(visitor, event.value());
+               _eventQueue.pop())
+            ;
+        }
+
         for (const auto& system : systems) {
           system->onUpdate(_activeScene, 0);
         }
@@ -59,7 +79,7 @@ bool Window::create(Renderer::API api) {
 
     // Blocking until the initialization is done
     {
-      std::unique_lock lock{mutex};
+      std::unique_lock lock{_eventQueueMutex};
       cv.wait(lock, [&] { return initDone; });
     }
 
@@ -69,8 +89,31 @@ bool Window::create(Renderer::API api) {
   return result;
 }
 
-void Window::resize(uint32_t width, uint32_t height) {
-  _defaultTarget->resize(width, height);
+void Window::startEventLoop() {
+  using namespace Event;
+
+  while (_running) {
+    EventType event = _windowFactory->nextEvent();
+    auto visitor = overload{
+        [this](const WindowClosed&) {
+          _running = false;
+          return true;
+        },
+        [](const KeyDown& key) {
+          Logger::info("KeyDown: {}", static_cast<int>(key.key));
+          return true;
+        },
+        [](const KeyUp& key) {
+          Logger::info("KeyUp: {}", static_cast<int>(key.key));
+          return true;
+        },
+        [](const auto&) { return false; },
+    };
+    if (not std::visit(visitor, event)) {
+      std::scoped_lock lock{_eventQueueMutex};
+      _eventQueue.push(event);
+    }
+  }
 }
 
 void Window::destroy() {

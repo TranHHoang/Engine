@@ -45,31 +45,6 @@ App::~App() {
 }
 
 void App::start() {
-  while (_running) {
-    handleEvents();
-    onUpdate();
-  }
-}
-
-void App::handleEvents() {
-  using namespace Window::Event;
-
-  auto& queue = _window->eventQueue();
-  while (!queue.empty()) {
-    std::visit(overload{
-                   [this](const WindowClosed&) {
-                     _window->setRunning(false);
-                     _running = false;
-                   },
-                   [this](const WindowResized& e) {
-                     _window->resize(e.width, e.height);
-                   },
-                   [](const KeyDown& key) {
-                     Logger::info("Key {} pressed", static_cast<int>(key.key));
-                   },
-                   [](const auto&) {},
-               },
-               queue.pop());
-  } // namespace Engine
+  _window->startEventLoop();
 }
 } // namespace Engine

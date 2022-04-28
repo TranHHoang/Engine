@@ -19,10 +19,8 @@ public:
     transform2.scale = {.5f, .5f};
     transform2.translation.x = 0.5;
     auto& s = _window->activeScene().addComponent<ECS::Component::Sprite>(rec2);
-    s.color = {1.0f, 0.0f, 1.0f, 0.5f};
+    s.color = {1.0f, 1.0f, 0.0f, 0.5f};
   }
-
-  void onUpdate() override {}
 
 private:
   ECS::Entity rec, rec2;

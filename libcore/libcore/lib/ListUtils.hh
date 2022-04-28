@@ -1,8 +1,7 @@
 #pragma once
 #include <iterator>
+#include <optional>
 #include <type_traits>
-
-#include <libcore/lib/Option.hh>
 
 namespace Engine::ListUtils {
 template <typename Cont, typename Fn>
@@ -29,9 +28,9 @@ void transform(const Cont& cont, Fn fn) {
 }
 
 template <typename Cont, typename Fn, typename T = typename Cont::iterator>
-Option<T> find(const Cont& cont, Fn fn) {
+std::optional<T> find(const Cont& cont, Fn fn) {
   auto it = std::find_if(std::begin(cont), std::end(cont), fn);
-  return it == std::end(cont) ? Option<T>() : Option(std::move(it));
+  return it == std::end(cont) ? std::nullopt : it;
 }
 
 template <typename Cont, typename Fn, typename T = typename Cont::iterator>

@@ -5,19 +5,8 @@
 #include <libcore/window/event/KeyEvent.hh>
 #include <libcore/window/event/MouseEvent.hh>
 
-namespace Engine {
-template <typename... Ts> // (7)
-struct overload : Ts... {
-  using Ts::operator()...;
-};
-template <class... Ts>
-overload(Ts...) -> overload<Ts...>;
-} // namespace Engine
-
 namespace Engine::Window::Event {
-
-using EventType = std::variant<std::monostate,
-                               WindowResized,
+using EventType = std::variant<WindowResized,
                                WindowClosed,
                                WindowMoved,
                                KeyDown,
