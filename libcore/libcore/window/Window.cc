@@ -22,7 +22,6 @@ bool Window::create(Renderer::API api) {
   if (result) {
     std::condition_variable cv;
     bool initDone = false;
-    std::mutex mutex;
 
     _renderingThread = std::thread{[&] {
       Logger::info("Creating platform provider object for {}", toString(api));

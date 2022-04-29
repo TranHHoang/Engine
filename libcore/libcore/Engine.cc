@@ -1,4 +1,3 @@
-#pragma once
 #include <libcore/Engine.hh>
 
 int main() {

@@ -44,4 +44,4 @@ private:
   Vector<UniformElement> _elements;
   uint32_t _stride;
 };
-}; // namespace Engine::Renderer::Shader
+} // namespace Engine::Renderer::Shader
