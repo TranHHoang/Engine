@@ -1,5 +1,3 @@
-#include <mutex>
-
 #include <libcore/Engine.hh>
 
 using namespace Engine;
@@ -7,7 +5,7 @@ using namespace Engine;
 class Sandbox : public App {
 public:
   Sandbox() : App{{}, Renderer::API::OpenGL} {
-    std::scoped_lock lock;
+    // TODO: Thread-safe
     rec = _window->activeScene().createEntity();
     auto& transform =
         _window->activeScene().addComponent<ECS::Component::Transform>(rec);

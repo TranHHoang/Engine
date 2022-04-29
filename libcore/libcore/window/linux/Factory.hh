@@ -1,7 +1,4 @@
 #pragma once
-#include <thread>
-#include <variant>
-
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -14,7 +11,7 @@ class LinuxFactory : public Factory {
 public:
   bool createNativeWindow(const Props& props) override;
   void showNativeWindow() const override;
-  Queue<Event::EventType>& eventQueue() override;
+  Event::EventType nextEvent() override;
   void destroyNativeWindow() override;
   Unique<Renderer::PlatformProvider>
   createPlatformProvider(Renderer::API api) const override;
@@ -22,12 +19,9 @@ public:
 
 private:
   Props _props;
-  Queue<Event::EventType> _eventQueue;
-
   ::Window _window;
   Display* _dpy;
   XVisualInfo* _visualInfo;
   Atom _wmDeleteMessage;
-  std::thread a;
 };
 } // namespace Engine::Window

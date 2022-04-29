@@ -1,16 +1,15 @@
 #include <any>
+#include <optional>
 
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/XKBlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xlib.h>
 #include <fmt/core.h>
+#include <sys/select.h>
 
 #include <libcore/lib/Assert.hh>
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
-#include <libcore/window/event/KeyEvent.hh>
 #include <libcore/window/input/Key.hh>
 #include <libcore/window/linux/Factory.hh>
 
@@ -186,37 +185,48 @@ void LinuxFactory::showNativeWindow() const {
   XStoreName(_dpy, _window, _props.title.data());
 }
 
-Queue<Event::EventType>& LinuxFactory::eventQueue() {
-  XEvent event;
-  XLockDisplay(_dpy);
-  if (XPending(_dpy))
-    XNextEvent(_dpy, &event);
-  XUnlockDisplay(_dpy);
-
+Event::EventType LinuxFactory::nextEvent() {
   using namespace Event;
-  EventType type;
 
-  switch (event.type) {
-  case ClientMessage:
-    if (static_cast<Atom>(event.xclient.data.l[0]) == _wmDeleteMessage)
-      type = WindowClosed{};
-    break;
-  case KeyRelease:
-    type = KeyUp{toKey(XkbKeycodeToKeysym(_dpy, event.xkey.keycode, 0, 0))};
-    break;
-  case KeyPress:
-    type = KeyDown{toKey(XkbKeycodeToKeysym(_dpy, event.xkey.keycode, 0, 0))};
-    break;
-  case ConfigureNotify:
-    type = WindowResized{static_cast<uint32_t>(event.xconfigure.width),
-                         static_cast<uint32_t>(event.xconfigure.height)};
-    break;
-  }
+  int x11fd = ConnectionNumber(_dpy);
 
-  if (!std::holds_alternative<std::monostate>(type)) {
-    _eventQueue.push(type);
+  while (true) {
+    XEvent xEvent;
+    auto pred = [](auto...) { return 1; };
+
+    while (not XCheckIfEvent(_dpy, &xEvent, pred, NULL)) {
+      XFlush(_dpy);
+
+      fd_set fds;
+      FD_ZERO(&fds);
+      FD_SET(x11fd, &fds);
+
+      select(x11fd + 1, &fds, NULL, NULL, NULL);
+    }
+
+    std::optional<EventType> event;
+    switch (xEvent.type) {
+    case ClientMessage:
+      if (static_cast<Atom>(xEvent.xclient.data.l[0]) == _wmDeleteMessage)
+        event = WindowClosed{};
+      break;
+    case KeyRelease:
+      event = KeyUp{toKey(XkbKeycodeToKeysym(_dpy, xEvent.xkey.keycode, 0, 0))};
+      break;
+    case KeyPress:
+      event =
+          KeyDown{toKey(XkbKeycodeToKeysym(_dpy, xEvent.xkey.keycode, 0, 0))};
+      break;
+    case ConfigureNotify:
+      event = WindowResized{static_cast<uint32_t>(xEvent.xconfigure.width),
+                            static_cast<uint32_t>(xEvent.xconfigure.height)};
+      break;
+    }
+
+    if (event.has_value()) {
+      return event.value();
+    }
   }
-  return _eventQueue;
 }
 
 void LinuxFactory::destroyNativeWindow() {
