@@ -28,6 +28,11 @@ elseif(LINUX)
     "libcore/window/linux/*.cc")
   file(GLOB LIBCORE_HEADERS_PLATFORM CONFIGURE_DEPENDS 
     "libcore/window/linux/*.hh")
+elseif(MACOS)
+  file(GLOB LIBCORE_SOURCES_PLATFORM CONFIGURE_DEPENDS 
+    "libcore/window/macos/*.mm")
+  file(GLOB LIBCORE_HEADERS_PLATFORM CONFIGURE_DEPENDS 
+    "libcore/window/macos/*.hh")
 endif()
 
 set(LIBCORE_RENDERER_SOURCES "")
@@ -50,6 +55,8 @@ set(LINK_LIBS glad glm OpenGL::GL stb fmt::fmt EnTT::EnTT)
 
 if(LINUX)
   list(APPEND LINK_LIBS Threads::Threads ${X11_LIBRARIES})
+elseif(MACOS)
+  list(APPEND LINK_LIBS ${COCOA_LIBRARY})
 endif()
 
 target_include_directories(libcore PUBLIC ".")

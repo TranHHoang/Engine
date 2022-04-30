@@ -1,4 +1,3 @@
-#include <any>
 #include <optional>
 
 #include <GL/gl.h>
@@ -246,9 +245,9 @@ LinuxFactory::createPlatformProvider(Renderer::API api) const {
       glXMakeCurrent(_dpy, _window, context);
       return context;
     };
-    provider->destroyContext = [this](std::any context) {
+    provider->destroyContext = [this](void* context) {
       glXMakeCurrent(_dpy, None, NULL);
-      glXDestroyContext(_dpy, std::any_cast<GLXContext>(context));
+      glXDestroyContext(_dpy, static_cast<GLXContext>(context));
     };
     return provider;
   }

@@ -11,14 +11,17 @@ using WindowFactory = Engine::Window::WindowsFactory;
 #elif LINUX
 #include <libcore/window/linux/Factory.hh>
 using WindowFactory = Engine::Window::LinuxFactory;
+#elif MACOS
+#include <libcore/window/macos/Factory.hh>
+using WindowFactory = Engine::Window::MacOSFactory;
 #endif
 
 namespace Engine {
-App::App(const Window::Props& props, Renderer::API api) : _running{true} {
-  Logger::info("Creating window ({})", Renderer::toString(api));
+App::App(const Window::Props& props) {
+  Logger::info("Creating window ({})", Renderer::toString(props.api));
 
   Unique<Renderer::Factory> rendererFactory;
-  switch (api) {
+  switch (props.api) {
   case Renderer::API::OpenGL:
     rendererFactory = createUnique<Renderer::OpenGLFactory>();
     break;
@@ -29,7 +32,7 @@ App::App(const Window::Props& props, Renderer::API api) : _running{true} {
   _window = createUnique<Window::Window>(Window::Props{},
                                          createUnique<WindowFactory>(),
                                          std::move(rendererFactory));
-  if (_window->create(api)) {
+  if (_window->create()) {
     Logger::info("Window (title = '{}', width = {}, height = {}) was created "
                  "successfully",
                  props.title,
