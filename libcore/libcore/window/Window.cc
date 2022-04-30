@@ -17,26 +17,26 @@ Window::Window(const Props& props,
       _running{true} {
 }
 
-bool Window::create(Renderer::API api) {
+bool Window::create() {
   bool result = _windowFactory->createNativeWindow(_props);
   if (result) {
     std::condition_variable cv;
     bool initDone = false;
 
     _renderingThread = std::thread{[&] {
-      Logger::info("Creating platform provider object for {}", toString(api));
-      auto provider = _windowFactory->createPlatformProvider(api);
+      Logger::info("Creating platform provider object for {}",
+                   toString(_props.api));
+      auto provider = _windowFactory->createPlatformProvider(_props.api);
 
-      Logger::info("Initiating {} renderer", toString(api));
+      Logger::info("Initiating {} renderer", toString(_props.api));
       auto renderer =
           createUnique<Renderer::Renderer>(*_rendererFactory, *provider);
 
-      Logger::info("Initiating default rendering target (swapchain)",
-                   toString(api));
+      Logger::info("Initiating default rendering target (swapchain)");
       auto defaultTarget =
           _rendererFactory->createDefaultTarget({_props.width, _props.height});
 
-      Logger::info("Initiating systems", toString(api));
+      Logger::info("Initiating systems");
       Vector<Unique<ECS::System::System>> systems;
       systems.add(
           createUnique<ECS::System::Rendering>(*renderer, defaultTarget));

@@ -1,4 +1,3 @@
-#include <any>
 #include <optional>
 
 #include <libcore/lib/Assert.hh>
@@ -115,10 +114,7 @@ static Key toKey(WPARAM key) {
   return Key::Null;
 }
 
-static LRESULT CALLBACK WndProc(HWND hwnd,
-                                UINT msg,
-                                WPARAM wparam,
-                                LPARAM lparam) {
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   switch (msg) {
   case WM_ERASEBKGND:
     return TRUE;
@@ -253,11 +249,11 @@ WindowsFactory::createPlatformProvider(Renderer::API api) const {
 
       return context;
     };
-    provider->destroyContext = [](std::any context) {
+    provider->destroyContext = [](void* context) {
       if (HDC hDC = wglGetCurrentDC()) {
         wglMakeCurrent(hDC, NULL);
       }
-      wglDeleteContext(std::any_cast<HGLRC>(context));
+      wglDeleteContext(static_cast<HGLRC>(context));
     };
     return provider;
   }

@@ -4,7 +4,7 @@ using namespace Engine;
 
 class Sandbox : public App {
 public:
-  Sandbox() : App{{}, Renderer::API::OpenGL} {
+  Sandbox() : App{{}} {
     // TODO: Thread-safe
     rec = _window->activeScene().createEntity();
     auto& transform =

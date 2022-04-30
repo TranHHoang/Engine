@@ -1,6 +1,4 @@
 #pragma once
-#include <any>
-
 #include <libcore/renderer/Context.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 
@@ -12,6 +10,6 @@ public:
 
 private:
   OpenGLPlatformProvider _provider;
-  std::any _context;
+  void* _context;
 };
 } // namespace Engine::Renderer

@@ -20,7 +20,7 @@ public:
          Unique<Renderer::Factory> rendererFactory);
   virtual ~Window() = default;
 
-  bool create(Renderer::API api);
+  bool create();
   void startEventLoop();
   void destroy();
 

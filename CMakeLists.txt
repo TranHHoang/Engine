@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(Engine VERSION 0.1)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(WIN32)
@@ -10,6 +9,9 @@ if(WIN32)
 elseif(UNIX AND NOT APPLE)
     set(LINUX TRUE)
     add_compile_definitions(LINUX)
+elseif(UNIX AND APPLE)
+    set(MACOS TRUE)
+    add_compile_definitions(MACOS)
 endif()
 
 if(MSVC)
@@ -28,6 +30,9 @@ find_package(X11 REQUIRED)
 
 message(STATUS "==== Checking Threads ====")
 find_package(Threads REQUIRED)
+elseif(MACOS)
+message(STATUS "==== Checking Cocoa ====")
+find_library(COCOA_LIBRARY Cocoa)
 endif()
 
 # Bundle libs
