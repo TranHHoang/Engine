@@ -20,16 +20,19 @@ void OpenGLVertex::unbind() const {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void OpenGLVertex::setData(size_t size, const void* data) {
+void OpenGLVertex::setData(MemBlock data) {
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
-  glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+  glBufferSubData(GL_ARRAY_BUFFER, 0, data.size(), data.data());
 }
 
-OpenGLIndex::OpenGLIndex(size_t size, uint32_t* indices) : Index(size) {
+OpenGLIndex::OpenGLIndex(std::span<const uint32_t> indices)
+    : Index{indices.size()} {
   glGenBuffers(1, &_bufID);
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
-  glBufferData(
-      GL_ARRAY_BUFFER, size * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER,
+               indices.size() * sizeof(uint32_t),
+               indices.data(),
+               GL_STATIC_DRAW);
 }
 
 OpenGLIndex::~OpenGLIndex() {

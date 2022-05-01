@@ -13,7 +13,7 @@ public:
 
   virtual void bind() const = 0;
   virtual void unbind() const = 0;
-  virtual void setData(size_t size, const void* data) = 0;
+  virtual void setData(MemBlock data) = 0;
 
   const Layout& layout() const { return _layout; }
 

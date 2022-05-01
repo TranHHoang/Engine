@@ -15,6 +15,7 @@ public:
   virtual void bind() const = 0;
   virtual void unbind() const = 0;
   virtual void setMat4(std::string_view name, const Mat4& mat) = 0;
+  virtual int totalTextureSlots() const = 0;
 
 private:
   UniformLayout _layout;

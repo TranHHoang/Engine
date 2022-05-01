@@ -31,19 +31,16 @@ public:
   Texture(ResourceID resourceID,
           uint32_t width,
           uint32_t height,
-          const Info& info)
-      : _info{info},
-        _width{width},
-        _height{height},
-        _resourceID{resourceID} {}
+          const Info& info);
   virtual ~Texture() = default;
+
+  void setImage(std::string_view path);
 
   ResourceID resourceID() const { return _resourceID; }
   uint32_t width() const { return _width; }
   uint32_t height() const { return _height; }
-  void setImage(std::string_view path);
 
-  virtual void initTexture(const void* data) = 0;
+  virtual void initTexture(const std::byte* data) = 0;
 
 protected:
   Info _info;

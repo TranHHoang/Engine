@@ -6,6 +6,16 @@
 #include <libcore/renderer/Texture.hh>
 
 namespace Engine::Renderer::Texture {
+Texture::Texture(ResourceID resourceID,
+                 uint32_t width,
+                 uint32_t height,
+                 const Info& info)
+    : _info{info},
+      _width{width},
+      _height{height},
+      _resourceID{resourceID} {
+}
+
 void Texture::setImage(std::string_view path) {
   _path = path;
 
@@ -23,7 +33,7 @@ void Texture::setImage(std::string_view path) {
   _width = width;
   _height = height;
 
-  initTexture(data);
+  initTexture(byte_cast(data));
   stbi_image_free(data);
 }
 

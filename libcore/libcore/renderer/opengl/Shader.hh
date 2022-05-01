@@ -15,10 +15,12 @@ public:
   void bind() const override;
   void unbind() const override;
   void setMat4(std::string_view name, const Mat4& mat) override;
+  int totalTextureSlots() const override;
 
   uint32_t programID() const { return _programID; }
 
 private:
+  std::string preprocessShader(GLuint shaderType, std::string_view src) const;
   std::optional<GLuint> buildShaderProgram(std::string_view vertexSrc,
                                            std::string_view fragmentSrc) const;
   std::optional<GLuint> compileShader(GLuint shaderType,

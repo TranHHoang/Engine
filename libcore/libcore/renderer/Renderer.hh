@@ -1,5 +1,4 @@
 #pragma once
-#include <array>
 #include <cstdint>
 
 #include <libcore/lib/Math.hh>
@@ -23,7 +22,6 @@ static const uint32_t MaxQuads = 1;
 static constexpr const uint32_t QuadVertexCount = 4;
 static constexpr const uint32_t MaxQuadVertices = MaxQuads * QuadVertexCount;
 static constexpr const uint32_t MaxQuadIndices = MaxQuads * 6;
-static const uint32_t MaxTextureSlots = 3;
 static const Vec4 QuadVertexOriginPositions[]{
     //  x     y     z    w
     {-0.5f, 0.5f, 0.0f, 1.0f},
@@ -31,7 +29,7 @@ static const Vec4 QuadVertexOriginPositions[]{
     {0.5f, -0.5f, 0.0f, 1.0f},
     {-0.5f, -0.5f, 0.0f, 1.0f},
 };
-static const uint32_t WhiteTexture = 0xFFFFFFFF;
+static const uint32_t WhiteTextureData = 0xFFFFFFFF;
 
 class Renderer {
 public:
@@ -52,11 +50,11 @@ private:
 
 private:
   Ref<Context> _context;
+  Ref<Texture::Texture> _whiteTexture;
   Unique<RawRenderer> _rawRenderer;
-  std::array<Ref<Texture::Texture>, MaxTextureSlots> _boundTextures;
-  Unique<QuadVertex[]> _quadVertexBase;
-  QuadVertex* _quadVertexPtr;
+  Vector<Texture::Texture*> _boundTextures;
+  Vector<QuadVertex> _quadVertexData;
   uint32_t _boundTexturesCount;
-  uint32_t _quadIndicesCount;
+  int _totalTextureSlots;
 };
 } // namespace Engine::Renderer

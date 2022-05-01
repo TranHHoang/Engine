@@ -33,38 +33,39 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
     quadIndices[i] = i / static_cast<uint32_t>(pattern.size()) * 4 +
                      pattern[i % pattern.size()];
   }
-  auto indexBuf = factory.createIndexBuffer(MaxQuadIndices, quadIndices.get());
+  auto indexBuf =
+      factory.createIndexBuffer({quadIndices.get(), MaxQuadIndices});
 
   Logger::info("Initiating shader");
   auto shader = factory.createShader({
       {
           .name = "u_ProjectionView",
           .type = Shader::UniformType::UniformBufferObject,
-          .layout =
-              {
-                  {"projectionView", Shader::DataType::Mat4},
-              },
+          .layout = {{"projectionView", Shader::DataType::Mat4}},
           .stage = Shader::ShaderStage::Vertex,
           .count = 1,
       },
       {
           .name = "u_Textures",
           .type = Shader::UniformType::CombinedImageSampler,
+          .layout = {},
           .stage = Shader::ShaderStage::Fragment,
           .count = 16,
       },
   });
-
+  _totalTextureSlots = shader->totalTextureSlots();
   _rawRenderer->setData(
       std::move(vertexBuf), std::move(indexBuf), std::move(shader));
 
   Logger::info("Binding all texture slots with a default white texture");
-  auto texture =
+  _whiteTexture =
       ContentManager<Texture::Texture>::create(factory, _context, 1, 1);
-  texture->initTexture(&WhiteTexture);
-  std::fill(_boundTextures.begin(), _boundTextures.end(), texture);
+  _whiteTexture->initTexture(byte_cast(&WhiteTextureData));
 
-  _quadVertexBase = createUnique<QuadVertex[]>(MaxQuadVertices);
+  _boundTextures.resize(_totalTextureSlots);
+  std::fill(_boundTextures.begin(), _boundTextures.end(), _whiteTexture.get());
+
+  _quadVertexData.reserve(MaxQuadVertices);
   Logger::info("Renderer initialization completed");
 }
 
@@ -87,20 +88,19 @@ void Renderer::beginScene(const Camera& camera, const Mat4& cameraTransform) {
 
 void Renderer::beginBatch() {
   // Reset
-  _quadVertexPtr = _quadVertexBase.get();
-  _quadIndicesCount = 0;
+  _quadVertexData.clear();
   _boundTexturesCount = 1;
 }
 
 void Renderer::endBatch() {
-  if (_quadIndicesCount == 0)
+  if (_quadVertexData.empty())
     return;
 
-  auto batchSize = std::distance(_quadVertexBase.get(), _quadVertexPtr);
-  _rawRenderer->setVertexBufferData(batchSize * sizeof(QuadVertex),
-                                    _quadVertexBase.get());
+  _rawRenderer->setVertexBufferData(
+      {byte_cast(_quadVertexData.data()),
+       _quadVertexData.size() * sizeof(QuadVertex)});
   _rawRenderer->bindTextures(_boundTextures);
-  _rawRenderer->drawIndexed(_quadIndicesCount);
+  _rawRenderer->drawIndexed(_quadVertexData.size() * 6);
 }
 
 void Renderer::endScene() {
@@ -122,7 +122,7 @@ void Renderer::drawQuad(const Mat4& transform,
                         const Texture::Region* const textureRegion,
                         const Vec4& color) {
   // Submit a draw call
-  if (_quadIndicesCount >= MaxQuadIndices)
+  if (_quadVertexData.size() >= MaxQuadVertices)
     switchBatch();
 
   const auto& region = textureRegion ? *textureRegion : Texture::Region{};
@@ -132,28 +132,28 @@ void Renderer::drawQuad(const Mat4& transform,
   if (region.texture()) {
     auto foundIndex = ListUtils::findIndex(
         std::span{_boundTextures.begin(), _boundTexturesCount},
-        [&region](const Ref<Texture::Texture>& tex) {
+        [&region](const Texture::Texture* tex) {
           return tex->resourceID() == region.texture()->resourceID();
         });
 
     if (foundIndex == -1) {
-      if (_boundTexturesCount >= MaxTextureSlots)
+      if (_boundTexturesCount >= static_cast<uint32_t>(_totalTextureSlots))
         switchBatch();
 
       textureIndex = static_cast<float>(_boundTexturesCount);
-      _boundTextures[_boundTexturesCount++] = region.texture();
+      _boundTextures[_boundTexturesCount++] = region.texture().get();
     } else {
       textureIndex = static_cast<float>(foundIndex);
     }
   }
 
   for (uint32_t i = 0; i < QuadVertexCount; ++i) {
-    _quadVertexPtr->position = transform * QuadVertexOriginPositions[i];
-    _quadVertexPtr->color = color;
-    _quadVertexPtr->texCoord = textureCoords[i];
-    _quadVertexPtr->texIndex = textureIndex;
-    ++_quadVertexPtr;
+    _quadVertexData.add({
+        .position = transform * QuadVertexOriginPositions[i],
+        .color = color,
+        .texCoord = textureCoords[i],
+        .texIndex = textureIndex,
+    });
   }
-  _quadIndicesCount += 6;
 }
 } // namespace Engine::Renderer
