@@ -4,7 +4,7 @@
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 #include <libcore/window/input/Key.hh>
-#include <libcore/window/windows/Factory.hh>
+#include <libcore/window/platform/windows/Factory.hh>
 
 namespace Engine::Window {
 static Key toKey(WPARAM key) {
