@@ -21,7 +21,7 @@ struct UniformElement {
   Buffer::Layout layout;
   ShaderStage stage;
   uint32_t count;
-  uint32_t offset;
+  uint32_t offset = 0;
 };
 
 class UniformLayout {

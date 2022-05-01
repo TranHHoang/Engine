@@ -25,9 +25,9 @@ public:
     return createUnique<Buffer::OpenGLVertex>(size, layout);
   }
 
-  Unique<Buffer::Index> createIndexBuffer(size_t size,
-                                          uint32_t* data) const override {
-    return createUnique<Buffer::OpenGLIndex>(size, data);
+  Unique<Buffer::Index>
+  createIndexBuffer(std::span<uint32_t> data) const override {
+    return createUnique<Buffer::OpenGLIndex>(data);
   }
 
   Unique<Shader::Shader>

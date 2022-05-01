@@ -12,10 +12,10 @@ public:
   void endScene() override;
   void destroyScene() override;
   void setClearColor(const Vec4& color) override;
-  void bindTextures(std::span<Ref<Texture::Texture>> textures) override;
+  void bindTextures(const Vector<Texture::Texture*>& textures) override;
   void uploadShaderUniforms(
       const std::initializer_list<ShaderUniformType>& uniforms) override;
-  void setVertexBufferData(size_t size, const void* data) override;
+  void setVertexBufferData(MemBlock data) override;
   void drawIndexed(uint32_t indexCount) override;
 
 private:

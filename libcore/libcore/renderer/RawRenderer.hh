@@ -7,6 +7,7 @@
 
 #include <libcore/lib/Math.hh>
 #include <libcore/lib/Memory.hh>
+#include <libcore/lib/Vector.hh>
 #include <libcore/renderer/Buffer.hh>
 #include <libcore/renderer/Shader.hh>
 #include <libcore/renderer/Target.hh>
@@ -26,8 +27,8 @@ public:
   virtual void endScene() = 0;
   virtual void destroyScene() = 0;
   virtual void setClearColor(const Vec4& color) = 0;
-  virtual void bindTextures(std::span<Ref<Texture::Texture>> textures) = 0;
-  virtual void setVertexBufferData(size_t size, const void* data) = 0;
+  virtual void bindTextures(const Vector<Texture::Texture*>& textures) = 0;
+  virtual void setVertexBufferData(MemBlock data) = 0;
   virtual void uploadShaderUniforms(
       const std::initializer_list<ShaderUniformType>& uniforms) = 0;
   virtual void drawIndexed(uint32_t indexCount) = 0;

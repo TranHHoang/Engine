@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <span>
 
 #include <libcore/Resource.hh>
 #include <libcore/lib/Memory.hh>
@@ -21,8 +22,8 @@ public:
   createContext(const PlatformProvider& provider) const = 0;
   virtual Unique<Buffer::Vertex>
   createVertexBuffer(size_t size, const Buffer::Layout& layout) const = 0;
-  virtual Unique<Buffer::Index> createIndexBuffer(size_t size,
-                                                  uint32_t* data) const = 0;
+  virtual Unique<Buffer::Index>
+  createIndexBuffer(std::span<uint32_t> data) const = 0;
   virtual Unique<Shader::Shader>
   createShader(const Shader::UniformLayout& layout) const = 0;
   virtual Ref<Texture::Texture>

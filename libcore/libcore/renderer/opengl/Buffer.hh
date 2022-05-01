@@ -1,4 +1,6 @@
 #pragma once
+#include <span>
+
 #include <glad/gl.h>
 
 #include <libcore/lib/Memory.hh>
@@ -12,7 +14,7 @@ public:
 
   void bind() const override;
   void unbind() const override;
-  void setData(size_t size, const void* data) override;
+  void setData(MemBlock data) override;
 
 private:
   GLuint _bufID;
@@ -20,7 +22,7 @@ private:
 
 class OpenGLIndex : public Index {
 public:
-  OpenGLIndex(size_t size, uint32_t* indices);
+  OpenGLIndex(std::span<const uint32_t> indicies);
   ~OpenGLIndex();
 
   virtual void bind() const override;

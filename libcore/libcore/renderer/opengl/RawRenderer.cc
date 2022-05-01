@@ -54,12 +54,12 @@ void OpenGLRawRenderer::setClearColor(const Vec4& color) {
 }
 
 void OpenGLRawRenderer::bindTextures(
-    std::span<Ref<Texture::Texture>> textures) {
+    const Vector<Texture::Texture*>& textures) {
   for (auto it = textures.begin(); it != textures.end(); it++) {
     glActiveTexture(GL_TEXTURE0 +
                     static_cast<int>(std::distance(textures.begin(), it)));
     glBindTexture(GL_TEXTURE_2D,
-                  static_cast<Texture::OpenGLTexture*>(it->get())->textureID());
+                  static_cast<Texture::OpenGLTexture*>(*it)->textureID());
   }
 }
 
@@ -73,8 +73,8 @@ void OpenGLRawRenderer::uploadShaderUniforms(
   }
 }
 
-void OpenGLRawRenderer::setVertexBufferData(size_t size, const void* data) {
-  _vertexBuf->setData(size, data);
+void OpenGLRawRenderer::setVertexBufferData(MemBlock data) {
+  _vertexBuf->setData(data);
 }
 
 void OpenGLRawRenderer::drawIndexed(uint32_t indexCount) {

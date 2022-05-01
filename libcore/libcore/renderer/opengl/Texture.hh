@@ -13,7 +13,7 @@ public:
                 uint32_t width,
                 uint32_t height,
                 const Info& info);
-  void initTexture(const void* data) override;
+  void initTexture(const std::byte* data) override;
 
   GLuint textureID() const { return _textureID; }
 

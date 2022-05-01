@@ -10,7 +10,7 @@ OpenGLTexture::OpenGLTexture(ResourceID id,
   _dataFormat = GL_RGBA;
 }
 
-void OpenGLTexture::initTexture(const void* data) {
+void OpenGLTexture::initTexture(const std::byte* data) {
   glGenTextures(1, &_textureID);
   glBindTexture(GL_TEXTURE_2D, _textureID);
 
