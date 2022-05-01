@@ -6,13 +6,13 @@
 #include <libcore/window/event/Event.hh>
 
 #ifdef WINDOWS
-#include <libcore/window/windows/Factory.hh>
+#include <libcore/window/platform/windows/Factory.hh>
 using WindowFactory = Engine::Window::WindowsFactory;
 #elif LINUX
-#include <libcore/window/linux/Factory.hh>
+#include <libcore/window/platform/linux/Factory.hh>
 using WindowFactory = Engine::Window::LinuxFactory;
 #elif MACOS
-#include <libcore/window/macos/Factory.hh>
+#include <libcore/window/platform/macos/Factory.hh>
 using WindowFactory = Engine::Window::MacOSFactory;
 #endif
 

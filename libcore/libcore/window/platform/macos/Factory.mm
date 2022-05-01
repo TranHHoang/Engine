@@ -8,7 +8,7 @@
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/Context.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
-#include <libcore/window/macos/Factory.hh>
+#include <libcore/window/platform/macos/Factory.hh>
 
 @interface MacOSWindow : NSWindow <NSApplicationDelegate>
 @end

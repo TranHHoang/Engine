@@ -20,19 +20,19 @@ set(LIBCORE_HEADERS_PLATFORM "")
 
 if(WINDOWS)
   file(GLOB LIBCORE_SOURCES_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/windows/*.cc")
+    "libcore/window/platform/windows/*.cc")
   file(GLOB LIBCORE_HEADERS_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/windows/*.hh")
+    "libcore/window/platform/windows/*.hh")
 elseif(LINUX)
   file(GLOB LIBCORE_SOURCES_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/linux/*.cc")
+    "libcore/window/platform/linux/*.cc")
   file(GLOB LIBCORE_HEADERS_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/linux/*.hh")
+    "libcore/window/platform/linux/*.hh")
 elseif(MACOS)
   file(GLOB LIBCORE_SOURCES_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/macos/*.mm")
+    "libcore/window/platform/macos/*.mm")
   file(GLOB LIBCORE_HEADERS_PLATFORM CONFIGURE_DEPENDS 
-    "libcore/window/macos/*.hh")
+    "libcore/window/platform/macos/*.hh")
 endif()
 
 set(LIBCORE_RENDERER_SOURCES "")

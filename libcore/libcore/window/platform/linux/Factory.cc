@@ -10,7 +10,7 @@
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 #include <libcore/window/input/Key.hh>
-#include <libcore/window/linux/Factory.hh>
+#include <libcore/window/platform/linux/Factory.hh>
 
 namespace Engine::Window {
 static Key toKey(KeySym key) {
