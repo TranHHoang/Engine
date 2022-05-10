@@ -13,6 +13,10 @@ namespace Engine::Renderer {
 Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
   Logger::info("Initiating renderer context");
   _context = factory.createContext(provider);
+  if (not _context->init()) {
+    // TODO: Proper error handling
+    assert(false);
+  }
   Logger::info("Initiating raw renderer (low level graphic API)");
   _rawRenderer = factory.createRawRenderer();
 
@@ -53,7 +57,7 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
           .count = 16,
       },
   });
-  _totalTextureSlots = shader->totalTextureSlots();
+  _totalTextureSlots = shader->maxTextureSlots();
   _rawRenderer->setData(
       std::move(vertexBuf), std::move(indexBuf), std::move(shader));
 
@@ -67,10 +71,6 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
 
   _quadVertexData.reserve(MaxQuadVertices);
   Logger::info("Renderer initialization completed");
-}
-
-void Renderer::destroy() {
-  _context->destroy();
 }
 
 void Renderer::setTarget(const Ref<Target>& target) {
@@ -100,7 +100,8 @@ void Renderer::endBatch() {
       {byte_cast(_quadVertexData.data()),
        _quadVertexData.size() * sizeof(QuadVertex)});
   _rawRenderer->bindTextures(_boundTextures);
-  _rawRenderer->drawIndexed(_quadVertexData.size() * 6);
+  _rawRenderer->drawIndexed(_quadVertexData.size() / QuadVertexCount *
+                            QuadIndexCount);
 }
 
 void Renderer::endScene() {
@@ -131,8 +132,7 @@ void Renderer::drawQuad(const Mat4& transform,
   float textureIndex = 0.0f;
   if (region.texture()) {
     auto foundIndex = ListUtils::findIndex(
-        std::span{_boundTextures.begin(), _boundTexturesCount},
-        [&region](const Texture::Texture* tex) {
+        _boundTextures, [&region](const Texture::Texture* tex) {
           return tex->resourceID() == region.texture()->resourceID();
         });
 

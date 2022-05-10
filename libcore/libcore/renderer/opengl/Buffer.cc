@@ -28,8 +28,8 @@ void OpenGLVertex::setData(MemBlock data) {
 OpenGLIndex::OpenGLIndex(std::span<const uint32_t> indices)
     : Index{indices.size()} {
   glGenBuffers(1, &_bufID);
-  glBindBuffer(GL_ARRAY_BUFFER, _bufID);
-  glBufferData(GL_ARRAY_BUFFER,
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufID);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                indices.size() * sizeof(uint32_t),
                indices.data(),
                GL_STATIC_DRAW);

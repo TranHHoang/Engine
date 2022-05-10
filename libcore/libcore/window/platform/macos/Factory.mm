@@ -142,8 +142,8 @@ MacOSFactory::createPlatformProvider(Renderer::API api) const {
       [[static_cast<NSOpenGLView*>(_view) openGLContext] makeCurrentContext];
       return _view;
     };
-    provider->destroyContext = [](void* context) {
-      [static_cast<NSOpenGLView*>(context) release];
+    provider->destroyContext = [](std::any context) {
+      [std::any_cast<NSOpenGLView*>(context) release];
     };
 
     return provider;
@@ -215,7 +215,7 @@ Key toKey(unsigned short key) {
     F_KEY(11);
     F_KEY(12);
   case kVK_Return:
-    return Key::Return;
+    return Key::Enter;
   case kVK_Escape:
     return Key::Escape;
   case kVK_Delete:
@@ -227,7 +227,7 @@ Key toKey(unsigned short key) {
   case kVK_ANSI_Minus:
     return Key::Minus;
   case kVK_ANSI_Equal:
-    return Key::Equals;
+    return Key::Equal;
   case kVK_ANSI_LeftBracket:
     return Key::LeftBracket;
   case kVK_ANSI_RightBracket:
@@ -307,7 +307,7 @@ Key toKey(unsigned short key) {
   return Key::Null;
 }
 
-Event::EventType MacOSFactory::nextEvent() {
+std::optional<Event::EventType> MacOSFactory::nextEvent() {
   while (true) {
     NSEvent* nsEvent = [NSApp nextEventMatchingMask:NSEventMaskAny
                                           untilDate:[NSDate distantFuture]

@@ -1,11 +1,12 @@
 #pragma once
+#include <any>
 #include <functional>
 
 #include <libcore/renderer/PlatformProvider.hh>
 
 namespace Engine::Renderer {
 struct OpenGLPlatformProvider : public PlatformProvider {
-  std::function<void*()> createContext;
-  std::function<void(void*)> destroyContext;
+  std::function<std::any()> createContext;
+  std::function<void(std::any)> destroyContext;
 };
 } // namespace Engine::Renderer

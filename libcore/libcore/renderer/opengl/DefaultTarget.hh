@@ -1,7 +1,6 @@
 #pragma once
-#include <glad/gl.h>
-
 #include <libcore/renderer/Target.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 
 namespace Engine::Renderer {
 class OpenGLDefaultTarget : public Target {

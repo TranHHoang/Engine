@@ -6,7 +6,6 @@ namespace Engine::Renderer {
 class OpenGLRawRenderer : public RawRenderer {
 public:
   OpenGLRawRenderer();
-
   void prepareScene() override;
   void beginScene() override;
   void endScene() override;

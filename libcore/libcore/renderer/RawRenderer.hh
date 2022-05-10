@@ -36,7 +36,7 @@ public:
   void setData(Unique<Buffer::Vertex> vertexBuf,
                Unique<Buffer::Index> indexBuf,
                Unique<Shader::Shader> shader);
-  void setTarget(Ref<Target> target);
+  void setTarget(const Ref<Target>& target);
 
 protected:
   virtual void setupBuffers() {}

@@ -1,5 +1,3 @@
-#include <glad/gl.h>
-
 #include <libcore/lib/Assert.hh>
 #include <libcore/renderer/opengl/Target.hh>
 

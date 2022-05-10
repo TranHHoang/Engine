@@ -1,22 +1,23 @@
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <glm/gtc/type_ptr.hpp>
 
 #include <libcore/lib/Assert.hh>
 #include <libcore/lib/File.hh>
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/opengl/Shader.hh>
+#include <libcore/renderer/opengl/ShaderSource.hh>
 
 namespace Engine::Renderer::Shader {
 OpenGLShader::OpenGLShader(const UniformLayout& layout)
     : Shader::Shader{layout} {
-  std::string vertexSrc = readFile("assets/shaders/opengl/Shader.vert");
-  std::string fragmentSrc = readFile("assets/shaders/opengl/Shader.frag");
-
-  if (auto programID = buildShaderProgram(vertexSrc, fragmentSrc)) {
+  if (auto programID = buildShaderProgram()) {
     _programID = programID.value();
+    Logger::info("Number of texture units available: {}", maxTextureSlots());
   } else {
     Logger::error("Failed to create OpenGL shader program");
     assert(false);
@@ -40,45 +41,49 @@ void OpenGLShader::setMat4(std::string_view name, const Mat4& mat) {
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-int OpenGLShader::totalTextureSlots() const {
+int OpenGLShader::maxTextureSlots() const {
   GLint textureUnits;
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
   return static_cast<int>(textureUnits);
 }
 
-std::string OpenGLShader::preprocessShader(GLuint shaderType,
-                                           std::string_view src) const {
+std::string OpenGLShader::preprocessShader(GLuint type) const {
   using namespace fmt::literals;
-  if (shaderType == GL_VERTEX_SHADER) {
-    return fmt::vformat(
-        src, fmt::make_format_args("version"_a = "#version 330 core"));
+  if (type == GL_VERTEX_SHADER) {
+    std::string_view version =
+#ifdef GLES
+        "#version 300 es";
+#else
+        "#version 330 core";
+#endif
+    return fmt::format(vertexSrc, "version"_a = version);
   } else {
-    int textureUnits = totalTextureSlots();
-    Logger::info("Number of texture units available: {}", textureUnits);
-
-    std::string switchOutputColorStr = "switch (id) {\n";
-    for (int i = 0; i < textureUnits; i++) {
-      switchOutputColorStr += fmt::format(
+    int maxSlots = maxTextureSlots();
+    std::string_view version =
+#ifdef GLES
+        "#version 300 es\nprecision mediump float;";
+#else
+        "#version 330 core";
+#endif
+    std::string outputColor = "switch (id) {\n";
+    for (int i = 0; i < maxSlots; i++) {
+      outputColor += fmt::format(
           "case {0}:\n"
           "o_Color = texture(u_Textures[{0}], v_TexCoord) * v_Color;\n"
           "break;\n",
           i);
     }
-    switchOutputColorStr += "}";
-
-    return fmt::vformat(
-        src,
-        fmt::make_format_args("version"_a = "#version 330 core",
-                              "totalTextureSlot"_a = textureUnits,
-                              "switchOutputColor"_a = switchOutputColorStr));
+    outputColor += "}";
+    return fmt::format(fragmentSrc,
+                       "version"_a = version,
+                       "maxTextureSlots"_a = maxTextureSlots(),
+                       "outputColor"_a = outputColor);
   }
 }
 
-std::optional<GLuint>
-OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
-                                 std::string_view fragmentSrc) const {
-  auto vertexShader = compileShader(GL_VERTEX_SHADER, vertexSrc);
-  auto fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentSrc);
+std::optional<GLuint> OpenGLShader::buildShaderProgram() const {
+  auto vertexShader = compileShader(GL_VERTEX_SHADER);
+  auto fragmentShader = compileShader(GL_FRAGMENT_SHADER);
 
   if (vertexShader && fragmentShader) {
     GLuint programID = glCreateProgram();
@@ -101,7 +106,7 @@ OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
       glDeleteShader(fragmentShader.value());
 
       Logger::error("{}", infoLog.data());
-      assert(false && "OpenGLShader linking failure!");
+      assert(false && "OpenGL shader linking failure!");
 
       return {};
     }
@@ -115,11 +120,10 @@ OpenGLShader::buildShaderProgram(std::string_view vertexSrc,
   return {};
 }
 
-std::optional<GLuint>
-OpenGLShader::compileShader(GLuint shaderType, std::string_view rawSrc) const {
+std::optional<GLuint> OpenGLShader::compileShader(GLuint shaderType) const {
   GLuint shader = glCreateShader(shaderType);
 
-  std::string src = preprocessShader(shaderType, rawSrc);
+  std::string src = preprocessShader(shaderType);
   const GLchar* source = src.data();
   glShaderSource(shader, 1, &source, nullptr);
   glCompileShader(shader);
@@ -134,7 +138,7 @@ OpenGLShader::compileShader(GLuint shaderType, std::string_view rawSrc) const {
     glGetShaderInfoLog(shader, maxLength, &maxLength, infoLog.data());
 
     Logger::error("{}", infoLog.data());
-    assert(false && "OpenGLShader compilation failure!");
+    assert(false && "OpenGL shader compilation failure!");
     glDeleteShader(shader);
 
     return {};

@@ -27,13 +27,13 @@ void transform(const Cont& cont, Fn fn) {
   transformIndexed(cont, [&](auto v, int) { std::invoke(fn, v); });
 }
 
-template <typename Cont, typename Fn, typename T = typename Cont::iterator>
+template <typename Cont, typename Fn, typename T>
 std::optional<T> find(const Cont& cont, Fn fn) {
   auto it = std::find_if(std::begin(cont), std::end(cont), fn);
   return it == std::end(cont) ? std::nullopt : it;
 }
 
-template <typename Cont, typename Fn, typename T = typename Cont::iterator>
+template <typename Cont, typename Fn>
 int64_t findIndex(const Cont& cont, Fn fn) {
   auto it = std::find_if(std::begin(cont), std::end(cont), fn);
   return it != std::end(cont) ? std::distance(std::begin(cont), it) : -1;

@@ -23,7 +23,7 @@ static Key toKey(WPARAM key) {
 
   switch (key) {
   case VK_RETURN:
-    return Key::Return;
+    return Key::Enter;
   case VK_ESCAPE:
     return Key::Escape;
   case VK_BACK:
@@ -35,7 +35,7 @@ static Key toKey(WPARAM key) {
   case VK_OEM_MINUS:
     return Key::Minus;
   case VK_OEM_PLUS:
-    return Key::Equals;
+    return Key::Equal;
   case VK_OEM_4:
     return Key::LeftBracket;
   case VK_OEM_6:
@@ -198,7 +198,7 @@ void WindowsFactory::showNativeWindow() const {
   UpdateWindow(_hWnd);
 }
 
-Event::EventType WindowsFactory::nextEvent() {
+std::optional<Event::EventType> WindowsFactory::nextEvent() {
   // Blocking until we receive the desired events
   while (true) {
     if (MSG msg; GetMessage(&msg, NULL, 0, 0) > 0) {
@@ -249,11 +249,11 @@ WindowsFactory::createPlatformProvider(Renderer::API api) const {
 
       return context;
     };
-    provider->destroyContext = [](void* context) {
+    provider->destroyContext = [](std::any context) {
       if (HDC hDC = wglGetCurrentDC()) {
         wglMakeCurrent(hDC, NULL);
       }
-      wglDeleteContext(static_cast<HGLRC>(context));
+      wglDeleteContext(std::any_cast<HGLRC>(context));
     };
     return provider;
   }

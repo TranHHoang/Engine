@@ -9,7 +9,7 @@ class WindowsFactory : public Factory {
 public:
   bool createNativeWindow(const Props& props) override;
   void showNativeWindow() const override;
-  Event::EventType nextEvent() override;
+  std::optional<Event::EventType> nextEvent() override;
   void destroyNativeWindow() override;
   Unique<Renderer::PlatformProvider>
   createPlatformProvider(Renderer::API api) const override;
