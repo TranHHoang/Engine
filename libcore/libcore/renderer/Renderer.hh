@@ -21,7 +21,8 @@ struct QuadVertex {
 static const uint32_t MaxQuads = 1;
 static constexpr const uint32_t QuadVertexCount = 4;
 static constexpr const uint32_t MaxQuadVertices = MaxQuads * QuadVertexCount;
-static constexpr const uint32_t MaxQuadIndices = MaxQuads * 6;
+static constexpr const uint32_t QuadIndexCount = 6;
+static constexpr const uint32_t MaxQuadIndices = MaxQuads * QuadIndexCount;
 static const Vec4 QuadVertexOriginPositions[]{
     //  x     y     z    w
     {-0.5f, 0.5f, 0.0f, 1.0f},
@@ -34,7 +35,6 @@ static const uint32_t WhiteTextureData = 0xFFFFFFFF;
 class Renderer {
 public:
   Renderer(const Factory& factory, const PlatformProvider& provider);
-  void destroy();
   void setTarget(const Ref<Target>& target);
   void beginScene(const Camera& camera, const Mat4& cameraTransform);
   void endScene();

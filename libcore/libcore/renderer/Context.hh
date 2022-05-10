@@ -20,10 +20,9 @@ public:
 public:
   Context(API api) : _api{api} {}
   virtual ~Context() = default;
-
-  virtual void destroy() = 0;
-
   API api() const { return _api; }
+
+  virtual bool init() = 0;
 
 private:
   API _api;

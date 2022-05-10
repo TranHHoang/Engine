@@ -3,6 +3,7 @@
 #include <variant>
 
 #include <libcore/ecs/System.hh>
+#include <libcore/lib/Logger.hh>
 #include <libcore/lib/Utils.hh>
 #include <libcore/renderer/Renderer.hh>
 #include <libcore/window/Window.hh>
@@ -17,69 +18,37 @@ Window::Window(const Props& props,
       _running{true} {
 }
 
-bool Window::create() {
+bool Window::create(bool singleThread) {
   bool result = _windowFactory->createNativeWindow(_props);
   if (result) {
-    std::condition_variable cv;
-    bool initDone = false;
+    if (singleThread) {
+      init();
+    } else {
+      std::condition_variable cv;
+      bool initDone = false;
 
-    _renderingThread = std::thread{[&] {
-      Logger::info("Creating platform provider object for {}",
-                   toString(_props.api));
-      auto provider = _windowFactory->createPlatformProvider(_props.api);
-
-      Logger::info("Initiating {} renderer", toString(_props.api));
-      auto renderer =
-          createUnique<Renderer::Renderer>(*_rendererFactory, *provider);
-
-      Logger::info("Initiating default rendering target (swapchain)");
-      auto defaultTarget =
-          _rendererFactory->createDefaultTarget({_props.width, _props.height});
-
-      Logger::info("Initiating systems");
-      Vector<Unique<ECS::System::System>> systems;
-      systems.add(
-          createUnique<ECS::System::Rendering>(*renderer, defaultTarget));
-      systems.add(createUnique<ECS::System::Spin>());
-
-      {
-        std::scoped_lock lock{_eventQueueMutex};
-        initDone = true;
-      }
-      cv.notify_one();
-
-      while (_running) {
-        using namespace Event;
+      _renderingThread = std::thread{[&] {
+        init();
         {
           std::scoped_lock lock{_eventQueueMutex};
-          auto visitor = overload{
-              [&](const WindowResized& e) {
-                defaultTarget->resize(e.width, e.height);
-                return true;
-              },
-              [](const auto&) { return false; },
-          };
-
-          for (std::optional<Event::EventType> event;
-               (event = _eventQueue.peek()) &&
-               std::visit(visitor, event.value());
-               _eventQueue.pop())
-            ;
+          initDone = true;
         }
+        cv.notify_one();
 
-        for (const auto& system : systems) {
-          system->onUpdate(_activeScene, 0);
+        while (_running) {
+          {
+            std::scoped_lock lock{_eventQueueMutex};
+            handleRenderingEvent();
+          }
+          updateSystems();
         }
-        _windowFactory->swapBuffers();
+      }};
+
+      // Blocking until the initialization is done
+      {
+        std::unique_lock lock{_eventQueueMutex};
+        cv.wait(lock, [&] { return initDone; });
       }
-
-      renderer->destroy();
-    }};
-
-    // Blocking until the initialization is done
-    {
-      std::unique_lock lock{_eventQueueMutex};
-      cv.wait(lock, [&] { return initDone; });
     }
 
     _windowFactory->showNativeWindow();
@@ -88,11 +57,28 @@ bool Window::create() {
   return result;
 }
 
-void Window::startEventLoop() {
-  using namespace Event;
+void Window::init() {
+  Logger::info("Creating platform provider object for {}",
+               toString(_props.api));
+  auto provider = _windowFactory->createPlatformProvider(_props.api);
 
-  while (_running) {
-    EventType event = _windowFactory->nextEvent();
+  Logger::info("Initiating {} renderer", toString(_props.api));
+  _renderer = createUnique<Renderer::Renderer>(*_rendererFactory, *provider);
+
+  Logger::info("Initiating default rendering target (swapchain)");
+  _defaultTarget =
+      _rendererFactory->createDefaultTarget({_props.width, _props.height});
+
+  Logger::info("Initiating systems");
+  _systems.add(
+      createUnique<ECS::System::Rendering>(*_renderer, _defaultTarget));
+  _systems.add(createUnique<ECS::System::Spin>());
+}
+
+std::optional<Event::EventType> Window::handleWindowEvent() {
+  using namespace Event;
+  std::optional<EventType> event = _windowFactory->nextEvent();
+  if (event) {
     auto visitor = overload{
         [this](const WindowClosed&) {
           _running = false;
@@ -108,15 +94,67 @@ void Window::startEventLoop() {
         },
         [](const auto&) { return false; },
     };
-    if (not std::visit(visitor, event)) {
+    if (not std::visit(visitor, event.value())) {
+      return event;
+    }
+  }
+  return {};
+}
+
+void Window::handleRenderingEvent() {
+  using namespace Event;
+
+  auto visitor = overload{
+      [&](const WindowResized& e) {
+        _defaultTarget->resize(e.width, e.height);
+        return true;
+      },
+      [](const auto&) { return false; },
+  };
+
+  for (std::optional<Event::EventType> event;
+       (event = _eventQueue.peek()) && std::visit(visitor, event.value());
+       _eventQueue.pop())
+    ;
+}
+
+void Window::updateSystems() {
+  for (const auto& system : _systems) {
+    system->onUpdate(_activeScene, 0);
+  }
+  _windowFactory->swapBuffers();
+}
+
+void Window::mainLoop() {
+  using namespace Event;
+  while (true) {
+    if (auto event = handleWindowEvent()) {
+      _eventQueue.push(event.value());
+      handleRenderingEvent();
+    } else {
+      break;
+    }
+  }
+  updateSystems();
+}
+
+/// Only call this method if the rendering thread is active
+void Window::startEventLoop() {
+  using namespace Event;
+  assert(_renderingThread.joinable());
+
+  while (_running) {
+    if (auto event = handleWindowEvent()) {
       std::scoped_lock lock{_eventQueueMutex};
-      _eventQueue.push(event);
+      _eventQueue.push(event.value());
     }
   }
 }
 
-void Window::destroy() {
-  _renderingThread.join();
+Window::~Window() {
+  if (_renderingThread.joinable())
+    _renderingThread.join();
+  _renderer.reset();
   _windowFactory->destroyNativeWindow();
 }
 } // namespace Engine::Window

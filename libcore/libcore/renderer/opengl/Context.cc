@@ -1,23 +1,31 @@
-#include <glad/gl.h>
-
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/opengl/Context.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 
 namespace Engine::Renderer {
-OpenGLContext::OpenGLContext(const OpenGLPlatformProvider& provider)
-    : Context{API::OpenGL},
-      _provider{provider} {
+bool OpenGLContext::init() {
   _context = _provider.createContext();
-  int version = gladLoaderLoadGL();
+
+  int version =
+#ifdef EMSCRIPTEN
+      1;
+#elif GLES
+      gladLoaderLoadGLES2();
+#else
+      gladLoaderLoadGL();
+#endif
+
   if (version) {
-    Logger::info("Loaded OpenGL version {}",
+    Logger::info("Loaded: {}",
                  reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+    return true;
   } else {
     Logger::error("Unable to load OpenGL library");
+    return false;
   }
 }
 
-void OpenGLContext::destroy() {
+OpenGLContext::~OpenGLContext() {
   _provider.destroyContext(_context);
 }
 } // namespace Engine::Renderer

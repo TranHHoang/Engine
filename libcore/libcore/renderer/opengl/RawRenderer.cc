@@ -1,9 +1,8 @@
 #include <numeric>
 
-#include <glad/gl.h>
-
 #include <libcore/lib/Math.hh>
 #include <libcore/lib/Vector.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 #include <libcore/renderer/opengl/RawRenderer.hh>
 #include <libcore/renderer/opengl/Shader.hh>
 #include <libcore/renderer/opengl/Texture.hh>
@@ -20,11 +19,13 @@ void OpenGLRawRenderer::prepareScene() {
 
 void OpenGLRawRenderer::beginScene() {
   _target->bind();
+  _vertexArray->bind();
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void OpenGLRawRenderer::endScene() {
   _target->unbind();
+  _vertexArray->unbind();
 }
 
 void OpenGLRawRenderer::destroyScene() {

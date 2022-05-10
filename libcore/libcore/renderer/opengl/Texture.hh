@@ -1,10 +1,9 @@
 #pragma once
 #include <cstdint>
 
-#include <glad/gl.h>
-
 #include <libcore/Resource.hh>
 #include <libcore/renderer/Texture.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 
 namespace Engine::Renderer::Texture {
 class OpenGLTexture : public Texture {

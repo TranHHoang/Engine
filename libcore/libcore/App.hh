@@ -7,8 +7,7 @@ namespace Engine {
 class App {
 public:
   App(const Window::Props& props);
-  virtual ~App();
-
+  virtual ~App() = default;
   void start();
 
 protected:

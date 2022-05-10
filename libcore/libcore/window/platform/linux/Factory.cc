@@ -1,5 +1,3 @@
-#include <optional>
-
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/XKBlib.h>
@@ -32,7 +30,7 @@ static Key toKey(KeySym key) {
 
   switch (key) {
   case XK_Return:
-    return Key::Return;
+    return Key::Enter;
   case XK_Escape:
     return Key::Escape;
   case XK_BackSpace:
@@ -44,7 +42,7 @@ static Key toKey(KeySym key) {
   case XK_minus:
     return Key::Minus;
   case XK_plus:
-    return Key::Equals;
+    return Key::Equal;
   case XK_bracketleft:
     return Key::LeftBracket;
   case XK_bracketright:
@@ -127,7 +125,6 @@ bool LinuxFactory::createNativeWindow(const Props& props) {
   _props = props;
 
   XInitThreads();
-
   _dpy = XOpenDisplay(NULL);
   if (_dpy == NULL) {
     assert(false);
@@ -184,7 +181,7 @@ void LinuxFactory::showNativeWindow() const {
   XStoreName(_dpy, _window, _props.title.data());
 }
 
-Event::EventType LinuxFactory::nextEvent() {
+std::optional<Event::EventType> LinuxFactory::nextEvent() {
   using namespace Event;
 
   int x11fd = ConnectionNumber(_dpy);
@@ -245,9 +242,9 @@ LinuxFactory::createPlatformProvider(Renderer::API api) const {
       glXMakeCurrent(_dpy, _window, context);
       return context;
     };
-    provider->destroyContext = [this](void* context) {
+    provider->destroyContext = [this](std::any context) {
       glXMakeCurrent(_dpy, None, NULL);
-      glXDestroyContext(_dpy, static_cast<GLXContext>(context));
+      glXDestroyContext(_dpy, std::any_cast<GLXContext>(context));
     };
     return provider;
   }

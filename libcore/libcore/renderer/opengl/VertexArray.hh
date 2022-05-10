@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include <libcore/renderer/Buffer.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 
 namespace Engine::Renderer {
 class OpenGLVertexArray {
@@ -13,6 +14,6 @@ public:
                   const Buffer::Index& indexBuf);
 
 private:
-  uint32_t _arrayID;
+  GLuint _arrayID;
 };
 } // namespace Engine::Renderer

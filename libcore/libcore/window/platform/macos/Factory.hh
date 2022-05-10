@@ -11,7 +11,7 @@ public:
   void destroyNativeWindow() override;
   Unique<Renderer::PlatformProvider>
   createPlatformProvider(Renderer::API api) const override;
-  Event::EventType nextEvent() override;
+  std::optional<Event::EventType> nextEvent() override;
   void swapBuffers() override;
 
   friend void pushToEventQueue(MacOSFactory* factory, Event::EventType event);

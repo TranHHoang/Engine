@@ -1,4 +1,6 @@
 #pragma once
+#include <optional>
+
 #include <libcore/lib/Memory.hh>
 #include <libcore/renderer/Context.hh>
 #include <libcore/renderer/PlatformProvider.hh>
@@ -12,7 +14,7 @@ public:
 
   virtual bool createNativeWindow(const Props& props) = 0;
   virtual void showNativeWindow() const = 0;
-  virtual Event::EventType nextEvent() = 0;
+  virtual std::optional<Event::EventType> nextEvent() = 0;
   virtual void destroyNativeWindow() = 0;
   virtual Unique<Renderer::PlatformProvider>
   createPlatformProvider(Renderer::API api) const = 0;

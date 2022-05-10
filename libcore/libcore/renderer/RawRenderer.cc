@@ -12,7 +12,7 @@ void RawRenderer::setData(Unique<Buffer::Vertex> vertexBuf,
   setupShader();
 }
 
-void RawRenderer::setTarget(Ref<Target> target) {
+void RawRenderer::setTarget(const Ref<Target>& target) {
   _target = target;
 }
 } // namespace Engine::Renderer

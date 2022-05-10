@@ -1,10 +1,9 @@
 #pragma once
 #include <span>
 
-#include <glad/gl.h>
-
 #include <libcore/lib/Memory.hh>
 #include <libcore/renderer/Buffer.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 
 namespace Engine::Renderer::Buffer {
 class OpenGLVertex : public Vertex {

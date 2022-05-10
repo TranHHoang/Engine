@@ -1,5 +1,3 @@
-#include <glad/gl.h>
-
 #include <libcore/renderer/BufferLayout.hh>
 #include <libcore/renderer/opengl/VertexArray.hh>
 
@@ -50,20 +48,17 @@ void OpenGLVertexArray::setBuffers(const Buffer::Vertex& vertexBuf,
 
   glBindVertexArray(_arrayID);
   vertexBuf.bind();
+  indexBuf.bind();
 
   for (const auto& e : layout.elements()) {
     auto index = static_cast<int>(&e - layout.elements().data());
-    glEnableVertexAttribArray(index);
     glVertexAttribPointer(index,
                           e.componentCount(),
                           toOpenGLType(e.type),
                           GL_FALSE,
                           layout.stride(),
                           reinterpret_cast<void*>(e.offset));
+    glEnableVertexAttribArray(index);
   }
-
-  // Bind index buf
-  glBindVertexArray(_arrayID);
-  indexBuf.bind();
 }
 } // namespace Engine::Renderer

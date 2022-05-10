@@ -40,14 +40,14 @@ enum class Key {
   D9,
   D0,
 
-  Return,
+  Enter,
   Escape,
   Backspace,
   Tab,
   Space,
 
   Minus,
-  Equals,
+  Equal,
   LeftBracket,
   RightBracket,
   Backslash,
