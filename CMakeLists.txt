@@ -9,6 +9,9 @@ if (EMSCRIPTEN)
 elseif(WIN32)
   set(WINDOWS TRUE)
   add_compile_definitions(WINDOWS)
+elseif(ANDROID)
+  set(GLES TRUE)
+  add_compile_definitions(ANDROID GLES)
 elseif(UNIX AND NOT APPLE)
   set(LINUX TRUE)
   add_compile_definitions(LINUX)
@@ -23,7 +26,7 @@ else()
   add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-if(NOT EMSCRIPTEN)
+if(NOT EMSCRIPTEN AND NOT ANDROID)
   # Packages
   message(STATUS "==== Checking OpenGL ====")
   find_package(OpenGL REQUIRED)
@@ -42,10 +45,15 @@ endif()
 
 # Bundle libs
 message(STATUS "==== Checking GLAD ====")
-add_subdirectory("vendor/glad")
+add_subdirectory("src/vendor/glad")
 
 message(STATUS "==== Checking stb ====")
-add_subdirectory("vendor/stb")
+add_subdirectory("src/vendor/stb")
+
+if(ANDROID)
+  message(STATUS "==== Checking android_native_app_glue ====")
+  add_subdirectory("src/vendor/android_native_app_glue")
+endif()
 
 # Third party libs
 include(FetchContent)
@@ -77,5 +85,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(EnTT)
 
-add_subdirectory("libcore")
-add_subdirectory("sandbox")
+add_subdirectory("src/libcore")
+add_subdirectory("src/sandbox")
