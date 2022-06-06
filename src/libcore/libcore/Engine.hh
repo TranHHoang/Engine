@@ -1,7 +1,13 @@
 #pragma once
-#include <libcore/App.hh>
+#include <any>
+
+namespace Engine {
+class App;
+}
 
 extern Engine::App* createApp(std::any data = {});
-#ifndef ANDROID
+void run(Engine::App* app);
+
+#if !defined(ANDROID) && !defined(IOS)
 int main();
 #endif

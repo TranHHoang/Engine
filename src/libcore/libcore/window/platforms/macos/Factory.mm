@@ -3,7 +3,6 @@
 #define GL_SILENCE_DEPRECATION
 #include <Carbon/Carbon.h>
 #include <Cocoa/Cocoa.h>
-#include <QuartzCore/CAOpenGLLayer.h>
 
 #include <libcore/lib/Logger.hh>
 #include <libcore/renderer/Context.hh>
