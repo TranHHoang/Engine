@@ -1,3 +1,4 @@
+#include <libcore/App.hh>
 #include <libcore/Engine.hh>
 #include <libcore/renderer/Context.hh>
 

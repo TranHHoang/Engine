@@ -23,7 +23,7 @@ struct Transform {
 
 struct Camera {
   Renderer::Camera camera;
-  Vec4 backgroundColor{0.0f, 0.0f, 0.0f, 1.0f};
+  Vec4 backgroundColor{0.0f, 1.0f, 0.0f, 1.0f};
 
   operator Renderer::Camera() const { return camera; }
 };

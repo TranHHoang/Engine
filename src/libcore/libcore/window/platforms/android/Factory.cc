@@ -1,3 +1,4 @@
+#include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <android/input.h>
 #include <android/looper.h>
@@ -10,7 +11,7 @@
 #include <libcore/lib/Vector.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 #include <libcore/window/input/Key.hh>
-#include <libcore/window/platform/android/Factory.hh>
+#include <libcore/window/platforms/android/Factory.hh>
 
 namespace Engine::Window {
 void onAppCmd(android_app* app, int32_t cmd) {

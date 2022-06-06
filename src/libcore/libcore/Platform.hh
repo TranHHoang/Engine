@@ -17,9 +17,13 @@ using WindowFactory = Engine::Window::MacOSFactory;
 using WindowFactory = Engine::Window::AndroidFactory;
 #undef WAIT_FOR_WINDOW_INIT
 #define WAIT_FOR_WINDOW_INIT true
+#elif IOS
+#include <libcore/window/platforms/ios/Factory.hh>
+using WindowFactory = Engine::Window::IOSFactory;
 #else
 #include <emscripten/emscripten.h>
 #include <libcore/window/platforms/emscripten/Factory.hh>
 using WindowFactory = Engine::Window::EmscriptenFactory;
+#undef SINGLE_THREAD
 #define SINGLE_THREAD true
 #endif

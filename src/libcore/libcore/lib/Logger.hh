@@ -72,7 +72,7 @@ private:
   static inline void
   print(Level level, fmt::format_string<Args...> format, Args&&... args) {
     std::string_view logLevel =
-#ifdef ANDROID
+#if defined(ANDROID) || defined(IOS)
         "";
 #else
         logColor(level);
@@ -87,7 +87,10 @@ private:
     __android_log_print(androidLogLevel(level), "Engine", "%s", log.c_str());
 #else
     fmt::vprint(log, {});
-    fmt::print("\033[0m\n");
+#ifndef IOS
+    fmt::print("\033[0m");
+#endif
+    fmt::print("\n");
 #endif
   }
 };

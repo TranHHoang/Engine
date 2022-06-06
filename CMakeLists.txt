@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.16)
 project(Engine VERSION 0.1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if (EMSCRIPTEN)
+if(EMSCRIPTEN)
   set(GLES TRUE)
   add_compile_definitions(EMSCRIPTEN GLES)
 elseif(WIN32)
@@ -15,6 +15,8 @@ elseif(ANDROID)
 elseif(UNIX AND NOT APPLE)
   set(LINUX TRUE)
   add_compile_definitions(LINUX)
+elseif(IOS)
+  add_compile_definitions(IOS GLES)
 elseif(UNIX AND APPLE)
   set(MACOS TRUE)
   add_compile_definitions(MACOS)
@@ -26,32 +28,39 @@ else()
   add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-if(NOT EMSCRIPTEN AND NOT ANDROID)
+if(NOT EMSCRIPTEN AND NOT ANDROID AND NOT IOS)
   # Packages
-  message(STATUS "==== Checking OpenGL ====")
+  message("==== Checking OpenGL ====")
   find_package(OpenGL REQUIRED)
 
   if(LINUX)
-    message(STATUS "==== Checking X11 ====")
+    message("==== Checking X11 ====")
     find_package(X11 REQUIRED)
-
-    message(STATUS "==== Checking Threads ====")
+    message("==== Checking Threads ====")
     find_package(Threads REQUIRED)
   elseif(MACOS)
-    message(STATUS "==== Checking Cocoa ====")
-    find_library(COCOA_LIBRARY Cocoa)
+    message("==== Checking Cocoa ====")
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
   endif()
 endif()
 
+if(IOS)
+  message("==== Checking UIKit ====")
+  find_library(UIKIT_LIBRARY UIKit REQUIRED)
+  message("==== Checking GLKit ====")
+  find_library(GLKIT_LIBRARY GLKit REQUIRED)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/projects/ios/Lib)
+endif()
+
 # Bundle libs
-message(STATUS "==== Checking GLAD ====")
+message("==== Checking GLAD ====")
 add_subdirectory("src/vendor/glad")
 
-message(STATUS "==== Checking stb ====")
+message("==== Checking stb ====")
 add_subdirectory("src/vendor/stb")
 
 if(ANDROID)
-  message(STATUS "==== Checking android_native_app_glue ====")
+  message("==== Checking android_native_app_glue ====")
   add_subdirectory("src/vendor/android_native_app_glue")
 endif()
 
@@ -59,7 +68,7 @@ endif()
 include(FetchContent)
 
 # ==== GLM ====
-message(STATUS "==== Checking GLM ====")
+message("==== Checking GLM ====")
 FetchContent_Declare(
   glm
   GIT_REPOSITORY "https://github.com/g-truc/glm.git"
@@ -68,7 +77,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 
 # ==== fmt ====
-message(STATUS "==== Checking fmt ====")
+message("==== Checking fmt ====")
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY "https://github.com/fmtlib/fmt.git"
@@ -77,11 +86,11 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 # ==== EnTT ====
-message(STATUS "==== Checking EnTT ====")
+message("==== Checking EnTT ====")
 FetchContent_Declare(
   EnTT
   GIT_REPOSITORY "https://github.com/skypjack/entt"
-  GIT_TAG "v3.10.0"
+  GIT_TAG "v3.10.1"
 )
 FetchContent_MakeAvailable(EnTT)
 

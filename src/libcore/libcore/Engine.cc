@@ -1,18 +1,22 @@
+#include <libcore/App.hh>
 #include <libcore/Engine.hh>
 
-#ifdef ANDROID
+void run(Engine::App* app) {
+  app->start();
+  delete app;
+}
+
+#if defined(ANDROID)
 #include <android_native_app_glue.h>
 
 void android_main(android_app* androidApp) {
   Engine::App* app = createApp(androidApp);
-  app->start();
-  delete app;
+  run(app);
 }
-#else
+#elif !defined(IOS)
 int main() {
   Engine::App* app = createApp();
-  app->start();
-  delete app;
+  run(app);
   return 0;
 }
 #endif

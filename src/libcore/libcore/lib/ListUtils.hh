@@ -28,7 +28,7 @@ void transform(const Cont& cont, Fn fn) {
   transformIndexed(cont, [&](auto v, int) { std::invoke(fn, v); });
 }
 
-template <typename Cont, typename Fn, typename T>
+template <typename Cont, typename Fn, typename T = typename Cont::value_type>
 std::optional<T> find(const Cont& cont, Fn fn) {
   auto it = std::find_if(std::begin(cont), std::end(cont), fn);
   if (it == std::end(cont))

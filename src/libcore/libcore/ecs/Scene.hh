@@ -1,5 +1,8 @@
 #pragma once
+#include <iostream>
+
 #include <entt/entity/registry.hpp>
+
 #include <libcore/ecs/Component.hh>
 
 namespace Engine::ECS {

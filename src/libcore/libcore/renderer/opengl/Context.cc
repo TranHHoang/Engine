@@ -7,7 +7,7 @@ bool OpenGLContext::init() {
   _context = _provider.createContext();
 
   int version =
-#if defined(EMSCRIPTEN) || defined(ANDROID)
+#if defined(EMSCRIPTEN) || defined(ANDROID) || defined(IOS)
       1;
 #else
       gladLoaderLoadGL();
@@ -15,7 +15,7 @@ bool OpenGLContext::init() {
 
   if (version) {
     Logger::info("Loaded: {}",
-                 reinterpret_cast<const char*>(glGetString(GL_VERSION)));
+                 reinterpret_cast<const char *>(glGetString(GL_VERSION)));
     return true;
   } else {
     Logger::error("Unable to load OpenGL library");
@@ -23,7 +23,5 @@ bool OpenGLContext::init() {
   }
 }
 
-OpenGLContext::~OpenGLContext() {
-  _provider.destroyContext(_context);
-}
+OpenGLContext::~OpenGLContext() { _provider.destroyContext(_context); }
 } // namespace Engine::Renderer
