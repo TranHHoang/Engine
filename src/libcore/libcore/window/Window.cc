@@ -182,8 +182,4 @@ void Window::destroy() {
   _renderer.reset();
   _windowFactory->destroyNativeWindow();
 }
-
-Window::~Window() {
-  destroy();
-}
 } // namespace Engine::Window

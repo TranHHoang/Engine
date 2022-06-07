@@ -24,7 +24,6 @@ public:
          std::any data,
          bool singleThread,
          bool waitForWindowInit);
-  ~Window();
 
   ECS::Scene& activeScene() { return _activeScene; }
 
