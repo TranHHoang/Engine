@@ -22,19 +22,17 @@ public:
          Unique<Factory> windowFactory,
          Unique<Renderer::Factory> rendererFactory,
          std::any data,
-         bool singleThread,
          bool waitForWindowInit);
 
   ECS::Scene& activeScene() { return _activeScene; }
 
   bool create();
-  void mainLoop();
   void startEventLoop();
+  void handleWindowEvent();
 
 private:
   void init();
   void destroy();
-  std::optional<Event::EventType> handleWindowEvent();
   void handleRenderingEvent();
   void updateSystems();
 
@@ -48,7 +46,7 @@ private:
   Ref<Renderer::Target> _defaultTarget;
   ECS::Scene _activeScene;
   std::atomic<bool> _rendererRunning, _eventLoopRunning;
-  bool _singleThread, _waitForWindowInit, _initialized;
+  bool _waitForWindowInit, _initialized;
   std::thread _renderingThread;
   std::mutex _mutex;
   std::any _data;

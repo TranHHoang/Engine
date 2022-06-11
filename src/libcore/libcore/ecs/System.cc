@@ -1,3 +1,4 @@
+// #include "libcore/lib/Logger.hh"
 #include <libcore/ecs/Component.hh>
 #include <libcore/ecs/Scene.hh>
 #include <libcore/ecs/System.hh>

@@ -1,11 +1,9 @@
 #include <string_view>
 
-#include <emscripten/em_types.h>
-#include <emscripten/html5.h>
 #include <emscripten/html5_webgl.h>
 
 #include <libcore/lib/Assert.hh>
-#include <libcore/lib/Logger.hh>
+#include <libcore/renderer/opengl/Glad.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 #include <libcore/window/input/Key.hh>
 #include <libcore/window/platforms/emscripten/Factory.hh>
@@ -232,16 +230,21 @@ EmscriptenFactory::createPlatformProvider(Renderer::API api) const {
   if (api == API::OpenGL) {
     auto provider = createUnique<OpenGLPlatformProvider>();
     provider->createContext = [] {
-      EmscriptenWebGLContextAttributes attribs{
-          .premultipliedAlpha = false,
-          .majorVersion = 2,
-          .minorVersion = 0,
-      };
-      auto context = emscripten_webgl_create_context("#canvas", &attribs);
+      EmscriptenWebGLContextAttributes attr;
+      emscripten_webgl_init_context_attributes(&attr);
+      attr.premultipliedAlpha = EM_FALSE;
+      attr.majorVersion = 2;
+      attr.minorVersion = 0;
+      // attr.explicitSwapControl = EM_TRUE;
+      attr.proxyContextToMainThread = EMSCRIPTEN_WEBGL_CONTEXT_PROXY_ALWAYS;
+      attr.renderViaOffscreenBackBuffer = EM_TRUE;
+
+      auto context = emscripten_webgl_create_context("#canvas", &attr);
       emscripten_webgl_make_context_current(context);
       return context;
     };
     provider->destroyContext = [](std::any context) {
+      emscripten_webgl_make_context_current(0);
       emscripten_webgl_destroy_context(
           std::any_cast<EMSCRIPTEN_WEBGL_CONTEXT_HANDLE>(context));
     };

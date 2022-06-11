@@ -82,9 +82,16 @@ target_include_directories(libcore PUBLIC ${INCLUDE_DIRS})
 target_link_libraries(libcore PUBLIC ${LINK_LIBS})
 
 if(EMSCRIPTEN)
-  # set_target_properties(libcore PROPERTIES COMPILE_FLAGS "-pthread")
+  set_target_properties(libcore PROPERTIES COMPILE_FLAGS "-pthread")
   set_target_properties(libcore PROPERTIES LINK_FLAGS 
-    "-sUSE_WEBGL2=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2")
+    "-sUSE_WEBGL2 
+    -sMIN_WEBGL_VERSION=2 
+    -sMAX_WEBGL_VERSION=2 
+    -sOFFSCREENCANVAS_SUPPORT 
+    -sOFFSCREEN_FRAMEBUFFER 
+    -sGL_DEBUG=1 
+    -sUSE_PTHREADS 
+    -sPTHREAD_POOL_SIZE=1")
 elseif(IOS)
   set_target_properties(libcore PROPERTIES COMPILE_FLAGS "-fno-objc-arc")
 endif()
