@@ -24,7 +24,6 @@ App::App(const Window::Props& props, std::any data) {
                                          createUnique<WindowFactory>(),
                                          std::move(rendererFactory),
                                          data,
-                                         SINGLE_THREAD,
                                          WAIT_FOR_WINDOW_INIT);
   if (_window->create()) {
     Logger::info("Window (title = '{}', width = {}, height = {}) was created "
@@ -40,7 +39,7 @@ App::App(const Window::Props& props, std::any data) {
 void App::start() {
 #ifdef EMSCRIPTEN
   emscripten_set_main_loop_arg(
-      [](void* arg) { static_cast<Window::Window*>(arg)->mainLoop(); },
+      [](void* arg) { static_cast<Window::Window*>(arg)->handleWindowEvent(); },
       _window.get(),
       0,
       1);

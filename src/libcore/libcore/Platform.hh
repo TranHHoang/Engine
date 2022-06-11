@@ -1,6 +1,5 @@
 #pragma once
 
-#define SINGLE_THREAD false
 #define WAIT_FOR_WINDOW_INIT false
 
 #ifdef WINDOWS
@@ -24,6 +23,4 @@ using WindowFactory = Engine::Window::IOSFactory;
 #include <emscripten/emscripten.h>
 #include <libcore/window/platforms/emscripten/Factory.hh>
 using WindowFactory = Engine::Window::EmscriptenFactory;
-#undef SINGLE_THREAD
-#define SINGLE_THREAD true
 #endif

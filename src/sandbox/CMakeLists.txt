@@ -17,7 +17,14 @@ add_custom_command(TARGET sandbox POST_BUILD
 )
 
 if(EMSCRIPTEN)
-  # set_target_properties(sandbox PROPERTIES COMPILE_FLAGS "-pthread")
+  set_target_properties(sandbox PROPERTIES COMPILE_FLAGS "-pthread")
   set_target_properties(sandbox PROPERTIES LINK_FLAGS 
-    "-sUSE_WEBGL2=1 -sMIN_WEBGL_VERSION=2 -sMAX_WEBGL_VERSION=2")
+    "-sUSE_WEBGL2 
+    -sMIN_WEBGL_VERSION=2 
+    -sMAX_WEBGL_VERSION=2 
+    -sOFFSCREENCANVAS_SUPPORT 
+    -sOFFSCREEN_FRAMEBUFFER 
+    -sGL_DEBUG=1 
+    -sUSE_PTHREADS 
+    -sPTHREAD_POOL_SIZE=1")
 endif()

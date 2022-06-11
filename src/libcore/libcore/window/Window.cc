@@ -11,14 +11,12 @@ Window::Window(const Props& props,
                Unique<Factory> windowFactory,
                Unique<Renderer::Factory> rendererFactory,
                std::any data,
-               bool singleThread,
                bool waitForWindowInit)
     : _props{props},
       _windowFactory{std::move(windowFactory)},
       _rendererFactory{std::move(rendererFactory)},
       _rendererRunning{true},
       _eventLoopRunning{true},
-      _singleThread{singleThread},
       _waitForWindowInit{waitForWindowInit},
       _initialized{false},
       _data{data} {
@@ -27,38 +25,34 @@ Window::Window(const Props& props,
 bool Window::create() {
   bool result = _windowFactory->createNativeWindow(_props, _data);
   if (result) {
-    if (_singleThread) {
-      init();
-    } else {
-      _renderingThread = std::thread{[&] {
-        if (_waitForWindowInit) {
-          std::unique_lock lock{_mutex};
-          _condVar.wait(lock, [this] { return _initialized; });
-        }
-
-        init();
-
-        if (not _waitForWindowInit) {
-          std::scoped_lock lock{_mutex};
-          _initialized = true;
-          _condVar.notify_one();
-        }
-
-        while (_rendererRunning) {
-          {
-            std::scoped_lock lock{_mutex};
-            handleRenderingEvent();
-          }
-          updateSystems();
-        }
-
-        handleRenderingEvent();
-      }};
-
-      if (not _waitForWindowInit) {
+    _renderingThread = std::thread{[&] {
+      if (_waitForWindowInit) {
         std::unique_lock lock{_mutex};
         _condVar.wait(lock, [this] { return _initialized; });
       }
+
+      init();
+
+      if (not _waitForWindowInit) {
+        std::scoped_lock lock{_mutex};
+        _initialized = true;
+        _condVar.notify_one();
+      }
+
+      while (_rendererRunning) {
+        {
+          std::scoped_lock lock{_mutex};
+          handleRenderingEvent();
+        }
+        updateSystems();
+      }
+
+      handleRenderingEvent();
+    }};
+
+    if (not _waitForWindowInit) {
+      std::unique_lock lock{_mutex};
+      _condVar.wait(lock, [this] { return _initialized; });
     }
 
     _windowFactory->showNativeWindow();
@@ -86,7 +80,7 @@ void Window::init() {
   _systems.add(createUnique<ECS::System::Spin>());
 }
 
-std::optional<Event::EventType> Window::handleWindowEvent() {
+void Window::handleWindowEvent() {
   using namespace Event;
   std::optional<EventType> event = _windowFactory->nextEvent();
   if (event) {
@@ -120,10 +114,10 @@ std::optional<Event::EventType> Window::handleWindowEvent() {
         [](const auto&) { return false; },
     };
     if (not std::visit(visitor, event.value())) {
-      return event;
+      std::scoped_lock lock{_mutex};
+      _eventQueue.push(event.value());
     }
   }
-  return {};
 }
 
 void Window::handleRenderingEvent() {
@@ -150,29 +144,12 @@ void Window::updateSystems() {
   _windowFactory->swapBuffers();
 }
 
-void Window::mainLoop() {
-  using namespace Event;
-  while (true) {
-    if (auto event = handleWindowEvent()) {
-      _eventQueue.push(event.value());
-      handleRenderingEvent();
-    } else {
-      break;
-    }
-  }
-  updateSystems();
-}
-
 /// Only call this method if the rendering thread is active
 void Window::startEventLoop() {
-  using namespace Event;
   assert(_renderingThread.joinable());
 
   while (_eventLoopRunning) {
-    if (auto event = handleWindowEvent()) {
-      std::scoped_lock lock{_mutex};
-      _eventQueue.push(event.value());
-    }
+    handleWindowEvent();
   }
 }
 
