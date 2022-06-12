@@ -236,7 +236,7 @@ LinuxFactory::createPlatformProvider(Renderer::API api) const {
 
   switch (api) {
   case API::OpenGL: {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [this] {
       GLXContext context = glXCreateContext(_dpy, _visualInfo, NULL, GL_TRUE);
       glXMakeCurrent(_dpy, _window, context);

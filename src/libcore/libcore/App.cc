@@ -9,12 +9,14 @@
 
 namespace Engine {
 App::App(const Window::Props& props, std::any data) {
-  Logger::info("Creating window ({})", Renderer::toString(props.api));
+  using namespace Renderer;
 
-  Unique<Renderer::Factory> rendererFactory = nullptr;
+  Logger::info("Creating window ({})", toString(props.api));
+
+  Unique<Factory> rendererFactory = nullptr;
   switch (props.api) {
-  case Renderer::API::OpenGL:
-    rendererFactory = createUnique<Renderer::OpenGLFactory>();
+  case API::OpenGL:
+    rendererFactory = createUnique<OpenGL::Factory>();
     break;
   default:
     break;

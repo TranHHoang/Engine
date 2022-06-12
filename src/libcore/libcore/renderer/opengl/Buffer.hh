@@ -5,11 +5,11 @@
 #include <libcore/renderer/Buffer.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer::Buffer {
-class OpenGLVertex : public Vertex {
+namespace Engine::Renderer::OpenGL {
+class VertexBuffer : public Engine::Renderer::VertexBuffer {
 public:
-  OpenGLVertex(size_t size, const Layout& layout);
-  ~OpenGLVertex();
+  VertexBuffer(size_t size, const BufferLayout& layout);
+  ~VertexBuffer();
 
   void bind() const override;
   void unbind() const override;
@@ -19,10 +19,10 @@ private:
   GLuint _bufID;
 };
 
-class OpenGLIndex : public Index {
+class IndexBuffer : public Engine::Renderer::IndexBuffer {
 public:
-  OpenGLIndex(std::span<const uint32_t> indicies);
-  ~OpenGLIndex();
+  IndexBuffer(std::span<const uint32_t> indicies);
+  ~IndexBuffer();
 
   virtual void bind() const override;
   virtual void unbind() const override;
@@ -30,4 +30,4 @@ public:
 private:
   GLuint _bufID;
 };
-} // namespace Engine::Renderer::Buffer
+} // namespace Engine::Renderer::OpenGL

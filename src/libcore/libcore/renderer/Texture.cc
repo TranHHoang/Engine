@@ -5,7 +5,7 @@
 #include <libcore/lib/Memory.hh>
 #include <libcore/renderer/Texture.hh>
 
-namespace Engine::Renderer::Texture {
+namespace Engine::Renderer {
 Texture::Texture(ResourceID resourceID,
                  uint32_t width,
                  uint32_t height,
@@ -37,11 +37,13 @@ void Texture::setImage(std::string_view path) {
   stbi_image_free(data);
 }
 
-Region::Region()
+TextureRegion::TextureRegion()
     : _coords{{{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}}} {
 }
 
-Region::Region(Ref<Texture> texture, const Vec2& coords, const Vec2& size) {
+TextureRegion::TextureRegion(Ref<Texture> texture,
+                             const Vec2& coords,
+                             const Vec2& size) {
   Vec2 regionSize = size;
   if (size.x == 0 || size.y == 0) {
     regionSize.x = static_cast<float>(texture->width());
@@ -61,4 +63,4 @@ Region::Region(Ref<Texture> texture, const Vec2& coords, const Vec2& size) {
        ((coords.y + 1) * regionSize.y) / texture->height()},
   }};
 }
-} // namespace Engine::Renderer::Texture
+} // namespace Engine::Renderer

@@ -2,18 +2,18 @@
 #include <libcore/renderer/RawRenderer.hh>
 #include <libcore/renderer/opengl/VertexArray.hh>
 
-namespace Engine::Renderer {
-class OpenGLRawRenderer : public RawRenderer {
+namespace Engine::Renderer::OpenGL {
+class RawRenderer : public Engine::Renderer::RawRenderer {
 public:
-  OpenGLRawRenderer();
+  RawRenderer();
   void prepareScene() override;
   void beginScene() override;
   void endScene() override;
   void destroyScene() override;
   void setClearColor(const Vec4& color) override;
-  void bindTextures(const Vector<Texture::Texture*>& textures) override;
+  void bindTextures(const Vector<Texture*>& textures) override;
   void uploadShaderUniforms(
-      const std::initializer_list<ShaderUniformType>& uniforms) override;
+      const std::initializer_list<UniformType>& uniforms) override;
   void setVertexBufferData(MemBlock data) override;
   void drawIndexed(uint32_t indexCount) override;
 
@@ -22,6 +22,6 @@ private:
   void setupShader() override;
 
 private:
-  Unique<OpenGLVertexArray> _vertexArray;
+  Unique<VertexArray> _vertexArray;
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

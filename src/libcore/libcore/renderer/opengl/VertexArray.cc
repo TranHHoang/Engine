@@ -1,36 +1,34 @@
 #include <libcore/renderer/BufferLayout.hh>
 #include <libcore/renderer/opengl/VertexArray.hh>
 
-namespace Engine::Renderer {
-OpenGLVertexArray::OpenGLVertexArray() {
+namespace Engine::Renderer::OpenGL {
+VertexArray::VertexArray() {
   glGenVertexArrays(1, &_arrayID);
 }
 
-void OpenGLVertexArray::bind() const {
+void VertexArray::bind() const {
   glBindVertexArray(_arrayID);
 }
 
-void OpenGLVertexArray::unbind() const {
+void VertexArray::unbind() const {
   glBindVertexArray(0);
 }
 
-static GLenum toOpenGLType(Shader::DataType type) {
-  using namespace Renderer::Buffer;
-
+static constexpr GLenum toGLType(BufferElement::Type type) {
   switch (type) {
-  case Shader::DataType::Float:
-  case Shader::DataType::Float2:
-  case Shader::DataType::Float3:
-  case Shader::DataType::Float4:
-  case Shader::DataType::Mat3:
-  case Shader::DataType::Mat4:
+  case BufferElement::Type::Float:
+  case BufferElement::Type::Float2:
+  case BufferElement::Type::Float3:
+  case BufferElement::Type::Float4:
+  case BufferElement::Type::Mat3:
+  case BufferElement::Type::Mat4:
     return GL_FLOAT;
-  case Shader::DataType::Int:
-  case Shader::DataType::Int2:
-  case Shader::DataType::Int3:
-  case Shader::DataType::Int4:
+  case BufferElement::Type::Int:
+  case BufferElement::Type::Int2:
+  case BufferElement::Type::Int3:
+  case BufferElement::Type::Int4:
     return GL_INT;
-  case Shader::DataType::Bool:
+  case BufferElement::Type::Bool:
     return GL_BOOL;
   default:
     break;
@@ -40,8 +38,8 @@ static GLenum toOpenGLType(Shader::DataType type) {
   return 0;
 }
 
-void OpenGLVertexArray::setBuffers(const Buffer::Vertex& vertexBuf,
-                                   const Buffer::Index& indexBuf) {
+void VertexArray::setBuffers(const VertexBuffer& vertexBuf,
+                             const IndexBuffer& indexBuf) {
   // Bind vertex buf
   const auto& layout = vertexBuf.layout();
   assert(layout.elements().size());
@@ -54,11 +52,11 @@ void OpenGLVertexArray::setBuffers(const Buffer::Vertex& vertexBuf,
     auto index = static_cast<int>(&e - layout.elements().data());
     glVertexAttribPointer(index,
                           e.componentCount(),
-                          toOpenGLType(e.type),
+                          toGLType(e.type),
                           GL_FALSE,
                           layout.stride(),
                           reinterpret_cast<void*>(e.offset));
     glEnableVertexAttribArray(index);
   }
 }
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

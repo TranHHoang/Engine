@@ -61,7 +61,7 @@ IOSFactory::createPlatformProvider(Renderer::API api) const {
   using namespace Renderer;
   switch (api) {
   case API::OpenGL: {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [this] {
       EAGLContext* context =
           [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];

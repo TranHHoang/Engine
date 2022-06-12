@@ -126,7 +126,7 @@ AndroidFactory::createPlatformProvider(Renderer::API api) const {
   using namespace Renderer;
 
   if (api == API::OpenGL) {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [this] {
       EGLint const static contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION,
                                               3, // new requirement

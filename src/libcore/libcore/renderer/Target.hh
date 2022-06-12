@@ -14,19 +14,7 @@ public:
   Target(const Info& info) : _info{info} {}
   virtual ~Target() = default;
 
-  void resize(uint32_t width, uint32_t height) {
-    if (width == _info.width && height == _info.height)
-      return;
-
-    Logger::info("Target is resized to {}x{}", width, height);
-    if (width == 0 || height == 0) {
-      Logger::error("Invalid target size {}x{}", width, height);
-      return;
-    }
-
-    _info = {width, height};
-    invalidate();
-  }
+  void resize(uint32_t width, uint32_t height);
 
   virtual void bind() = 0;
   virtual void unbind() = 0;

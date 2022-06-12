@@ -2,8 +2,8 @@
 #include <libcore/renderer/opengl/Context.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer {
-bool OpenGLContext::init() {
+namespace Engine::Renderer::OpenGL {
+bool Context::init() {
   _context = _provider.createContext();
 
   int version =
@@ -15,7 +15,7 @@ bool OpenGLContext::init() {
 
   if (version) {
     Logger::info("Loaded: {}",
-                 reinterpret_cast<const char *>(glGetString(GL_VERSION)));
+                 reinterpret_cast<const char*>(glGetString(GL_VERSION)));
     return true;
   } else {
     Logger::error("Unable to load OpenGL library");
@@ -23,5 +23,7 @@ bool OpenGLContext::init() {
   }
 }
 
-OpenGLContext::~OpenGLContext() { _provider.destroyContext(_context); }
-} // namespace Engine::Renderer
+Context::~Context() {
+  _provider.destroyContext(_context);
+}
+} // namespace Engine::Renderer::OpenGL

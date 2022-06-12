@@ -30,11 +30,10 @@ private:
 
 template <>
 template <typename... Args>
-Ref<Renderer::Texture::Texture>
-ContentManager<Renderer::Texture::Texture>::create(
-    const Renderer::Factory& factory,
-    const Ref<Renderer::Context>& context,
-    Args&&... args) {
+Ref<Renderer::Texture>
+ContentManager<Renderer::Texture>::create(const Renderer::Factory& factory,
+                                          const Ref<Renderer::Context>& context,
+                                          Args&&... args) {
   std::string key = "#texture_" + std::to_string(_uuid);
   _resources[key] =
       factory.createTexture(_uuid, context, std::forward<Args>(args)...);
@@ -44,15 +43,14 @@ ContentManager<Renderer::Texture::Texture>::create(
 
 template <>
 template <typename... Args>
-Ref<Renderer::Texture::Texture>
-ContentManager<Renderer::Texture::Texture>::load(
-    const Renderer::Factory& factory,
-    const Ref<Renderer::Context>& context,
-    std::string_view path,
-    Args&&... args) {
+Ref<Renderer::Texture>
+ContentManager<Renderer::Texture>::load(const Renderer::Factory& factory,
+                                        const Ref<Renderer::Context>& context,
+                                        std::string_view path,
+                                        Args&&... args) {
   auto p = std::string{path};
   if (not _resources.contains(p)) {
-    Ref<Renderer::Texture::Texture> texture =
+    Ref<Renderer::Texture> texture =
         create(factory, context, std::forward<Args>(args)...);
     texture->setImage(path);
     _resources[p] = std::move(texture);

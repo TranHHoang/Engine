@@ -7,65 +7,62 @@
 #include <libcore/renderer/opengl/Shader.hh>
 #include <libcore/renderer/opengl/Texture.hh>
 
-namespace Engine::Renderer {
-OpenGLRawRenderer::OpenGLRawRenderer() {
+namespace Engine::Renderer::OpenGL {
+RawRenderer::RawRenderer() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void OpenGLRawRenderer::prepareScene() {
+void RawRenderer::prepareScene() {
   _shader->bind();
 }
 
-void OpenGLRawRenderer::beginScene() {
+void RawRenderer::beginScene() {
   _target->bind();
   _vertexArray->bind();
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void OpenGLRawRenderer::endScene() {
+void RawRenderer::endScene() {
   _target->unbind();
   _vertexArray->unbind();
 }
 
-void OpenGLRawRenderer::destroyScene() {
+void RawRenderer::destroyScene() {
   _shader->unbind();
 }
 
-void OpenGLRawRenderer::setupBuffers() {
-  _vertexArray = createUnique<OpenGLVertexArray>();
-  _vertexArray->setBuffers(*static_cast<Buffer::Vertex*>(_vertexBuf.get()),
-                           *static_cast<Buffer::Index*>(_indexBuf.get()));
+void RawRenderer::setupBuffers() {
+  _vertexArray = createUnique<VertexArray>();
+  _vertexArray->setBuffers(*static_cast<VertexBuffer*>(_vertexBuf.get()),
+                           *static_cast<IndexBuffer*>(_indexBuf.get()));
 }
 
-void OpenGLRawRenderer::setupShader() {
+void RawRenderer::setupShader() {
   Vector<int> samplers{16};
   std::iota(samplers.begin(), samplers.end(), 0);
 
   _shader->bind();
   GLint location = glGetUniformLocation(
-      static_cast<Shader::OpenGLShader*>(_shader.get())->programID(),
-      "u_Textures");
+      static_cast<Shader*>(_shader.get())->programID(), "u_Textures");
   glUniform1iv(
       location, static_cast<GLsizei>(samplers.size()), samplers.data());
 }
 
-void OpenGLRawRenderer::setClearColor(const Vec4& color) {
+void RawRenderer::setClearColor(const Vec4& color) {
   glClearColor(color.r, color.g, color.b, color.a);
 }
 
-void OpenGLRawRenderer::bindTextures(
-    const Vector<Texture::Texture*>& textures) {
+void RawRenderer::bindTextures(const Vector<Renderer::Texture*>& textures) {
   for (auto it = textures.begin(); it != textures.end(); it++) {
     glActiveTexture(GL_TEXTURE0 +
                     static_cast<int>(std::distance(textures.begin(), it)));
-    glBindTexture(GL_TEXTURE_2D,
-                  static_cast<Texture::OpenGLTexture*>(*it)->textureID());
+    glBindTexture(GL_TEXTURE_2D, static_cast<Texture*>(*it)->textureID());
   }
 }
 
-void OpenGLRawRenderer::uploadShaderUniforms(
-    const std::initializer_list<ShaderUniformType>& uniforms) {
+void RawRenderer::uploadShaderUniforms(
+    const std::initializer_list<UniformType>& uniforms) {
   for (const auto& u : uniforms) {
     // TODO: std::visit
     if (const Mat4 * mat; (mat = std::get_if<Mat4>(&u.value)) != nullptr) {
@@ -74,15 +71,15 @@ void OpenGLRawRenderer::uploadShaderUniforms(
   }
 }
 
-void OpenGLRawRenderer::setVertexBufferData(MemBlock data) {
+void RawRenderer::setVertexBufferData(MemBlock data) {
   _vertexBuf->setData(data);
 }
 
-void OpenGLRawRenderer::drawIndexed(uint32_t indexCount) {
+void RawRenderer::drawIndexed(uint32_t indexCount) {
   glDrawElements(GL_TRIANGLES,
                  indexCount ? indexCount
                             : static_cast<uint32_t>(_indexBuf->size()),
                  GL_UNSIGNED_INT,
                  nullptr);
 }
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

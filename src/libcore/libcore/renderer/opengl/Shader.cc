@@ -12,9 +12,8 @@
 #include <libcore/renderer/opengl/Shader.hh>
 #include <libcore/renderer/opengl/ShaderSource.hh>
 
-namespace Engine::Renderer::Shader {
-OpenGLShader::OpenGLShader(const UniformLayout& layout)
-    : Shader::Shader{layout} {
+namespace Engine::Renderer::OpenGL {
+Shader::Shader(const UniformLayout& layout) : Renderer::Shader{layout} {
   if (auto programID = buildShaderProgram()) {
     _programID = programID.value();
     Logger::info("Number of texture units available: {}", maxTextureSlots());
@@ -24,30 +23,30 @@ OpenGLShader::OpenGLShader(const UniformLayout& layout)
   }
 }
 
-OpenGLShader::~OpenGLShader() {
+Shader::~Shader() {
   glDeleteProgram(_programID);
 }
 
-void OpenGLShader::bind() const {
+void Shader::bind() const {
   glUseProgram(_programID);
 }
 
-void OpenGLShader::unbind() const {
+void Shader::unbind() const {
   glUseProgram(0);
 }
 
-void OpenGLShader::setMat4(std::string_view name, const Mat4& mat) {
+void Shader::setMat4(std::string_view name, const Mat4& mat) {
   GLint location = glGetUniformLocation(_programID, name.data());
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));
 }
 
-int OpenGLShader::maxTextureSlots() const {
+int Shader::maxTextureSlots() const {
   GLint textureUnits;
   glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &textureUnits);
   return static_cast<int>(textureUnits);
 }
 
-std::string OpenGLShader::preprocessShader(GLuint type) const {
+std::string Shader::preprocessShader(GLuint type) const {
   using namespace fmt::literals;
   if (type == GL_VERTEX_SHADER) {
     std::string_view version =
@@ -81,7 +80,7 @@ std::string OpenGLShader::preprocessShader(GLuint type) const {
   }
 }
 
-std::optional<GLuint> OpenGLShader::buildShaderProgram() const {
+std::optional<GLuint> Shader::buildShaderProgram() const {
   auto vertexShader = compileShader(GL_VERTEX_SHADER);
   auto fragmentShader = compileShader(GL_FRAGMENT_SHADER);
 
@@ -120,7 +119,7 @@ std::optional<GLuint> OpenGLShader::buildShaderProgram() const {
   return {};
 }
 
-std::optional<GLuint> OpenGLShader::compileShader(GLuint shaderType) const {
+std::optional<GLuint> Shader::compileShader(GLuint shaderType) const {
   GLuint shader = glCreateShader(shaderType);
 
   std::string src = preprocessShader(shaderType);
@@ -146,4 +145,4 @@ std::optional<GLuint> OpenGLShader::compileShader(GLuint shaderType) const {
 
   return shader;
 }
-} // namespace Engine::Renderer::Shader
+} // namespace Engine::Renderer::OpenGL

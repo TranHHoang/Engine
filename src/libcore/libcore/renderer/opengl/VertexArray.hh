@@ -4,16 +4,15 @@
 #include <libcore/renderer/Buffer.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer {
-class OpenGLVertexArray {
+namespace Engine::Renderer::OpenGL {
+class VertexArray {
 public:
-  OpenGLVertexArray();
+  VertexArray();
   void bind() const;
   void unbind() const;
-  void setBuffers(const Buffer::Vertex& vertexBuf,
-                  const Buffer::Index& indexBuf);
+  void setBuffers(const VertexBuffer& vertexBuf, const IndexBuffer& indexBuf);
 
 private:
   GLuint _arrayID;
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

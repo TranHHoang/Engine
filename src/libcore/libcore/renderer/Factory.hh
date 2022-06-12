@@ -20,18 +20,16 @@ public:
 
   virtual Ref<Context>
   createContext(const PlatformProvider& provider) const = 0;
-  virtual Unique<Buffer::Vertex>
-  createVertexBuffer(size_t size, const Buffer::Layout& layout) const = 0;
-  virtual Unique<Buffer::Index>
+  virtual Unique<VertexBuffer>
+  createVertexBuffer(size_t size, const BufferLayout& layout) const = 0;
+  virtual Unique<IndexBuffer>
   createIndexBuffer(std::span<uint32_t> data) const = 0;
-  virtual Unique<Shader::Shader>
-  createShader(const Shader::UniformLayout& layout) const = 0;
-  virtual Ref<Texture::Texture>
-  createTexture(ResourceID resourceID,
-                const Ref<Context>& context,
-                uint32_t width,
-                uint32_t height,
-                const Texture::Info& info = {}) const = 0;
+  virtual Unique<Shader> createShader(const UniformLayout& layout) const = 0;
+  virtual Ref<Texture> createTexture(ResourceID resourceID,
+                                     const Ref<Context>& context,
+                                     uint32_t width,
+                                     uint32_t height,
+                                     const Texture::Info& info = {}) const = 0;
   virtual Unique<RawRenderer> createRawRenderer() const = 0;
   virtual Unique<Target> createTarget(const Ref<Context>& context,
                                       const Target::Info& info) const = 0;

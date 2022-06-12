@@ -40,7 +40,7 @@ public:
   void endScene();
   void setClearColor(const Vec4& color);
   void drawQuad(const Mat4& transform,
-                const Texture::Region* const textureRegion,
+                const TextureRegion* const textureRegion,
                 const Vec4& color);
 
 private:
@@ -50,9 +50,9 @@ private:
 
 private:
   Ref<Context> _context;
-  Ref<Texture::Texture> _whiteTexture;
+  Ref<Texture> _whiteTexture;
   Unique<RawRenderer> _rawRenderer;
-  Vector<Texture::Texture*> _boundTextures;
+  Vector<Texture*> _boundTextures;
   Vector<QuadVertex> _quadVertexData;
   uint32_t _boundTexturesCount;
   int _totalTextureSlots;

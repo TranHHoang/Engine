@@ -4,9 +4,8 @@
 #include <libcore/lib/Math.hh>
 #include <libcore/renderer/UniformLayout.hh>
 
-namespace Engine::Renderer::Shader {
+namespace Engine::Renderer {
 class Shader {
-public:
 public:
   Shader(const UniformLayout& layout) : _layout{layout} {}
   virtual ~Shader() = default;
@@ -20,4 +19,4 @@ public:
 private:
   UniformLayout _layout;
 };
-} // namespace Engine::Renderer::Shader
+} // namespace Engine::Renderer

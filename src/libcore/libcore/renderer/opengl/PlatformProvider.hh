@@ -4,9 +4,9 @@
 
 #include <libcore/renderer/PlatformProvider.hh>
 
-namespace Engine::Renderer {
-struct OpenGLPlatformProvider : public PlatformProvider {
+namespace Engine::Renderer::OpenGL {
+struct PlatformProvider : public Engine::Renderer::PlatformProvider {
   std::function<std::any()> createContext;
   std::function<void(std::any)> destroyContext;
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

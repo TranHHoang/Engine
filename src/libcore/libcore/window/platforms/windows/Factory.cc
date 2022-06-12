@@ -110,7 +110,6 @@ static Key toKey(WPARAM key) {
     return Key::RGui;
   }
 
-  assert(false);
   return Key::Null;
 }
 
@@ -224,7 +223,7 @@ WindowsFactory::createPlatformProvider(Renderer::API api) const {
 
   switch (api) {
   case API::OpenGL: {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [this] {
       PIXELFORMATDESCRIPTOR pfd{
           .nSize = sizeof(PIXELFORMATDESCRIPTOR),

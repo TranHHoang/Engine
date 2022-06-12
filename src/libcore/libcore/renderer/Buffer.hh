@@ -3,39 +3,41 @@
 #include <libcore/lib/Vector.hh>
 #include <libcore/renderer/BufferLayout.hh>
 
-namespace Engine::Renderer::Buffer {
-class Vertex {
+namespace Engine::Renderer {
+class VertexBuffer {
 public:
-  Vertex(size_t size, const Layout& layout) : _size{size}, _layout{layout} {
+  VertexBuffer(size_t size, const BufferLayout& layout)
+      : _size{size},
+        _layout{layout} {
     setupLayout();
   }
-  virtual ~Vertex() = default;
+  virtual ~VertexBuffer() = default;
+
+  const BufferLayout& layout() const { return _layout; }
 
   virtual void bind() const = 0;
   virtual void unbind() const = 0;
   virtual void setData(MemBlock data) = 0;
-
-  const Layout& layout() const { return _layout; }
 
 protected:
   virtual void setupLayout() {}
 
 protected:
   size_t _size;
-  Layout _layout;
+  BufferLayout _layout;
 };
 
-class Index {
+class IndexBuffer {
 public:
-  Index(size_t size) : _size{size} {}
-  virtual ~Index() = default;
+  IndexBuffer(size_t size) : _size{size} {}
+  virtual ~IndexBuffer() = default;
+
+  size_t size() const { return _size; }
 
   virtual void bind() const = 0;
   virtual void unbind() const = 0;
 
-  size_t size() const { return _size; }
-
 private:
   size_t _size;
 };
-} // namespace Engine::Renderer::Buffer
+} // namespace Engine::Renderer

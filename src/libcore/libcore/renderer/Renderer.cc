@@ -21,14 +21,14 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
   _rawRenderer = factory.createRawRenderer();
 
   Logger::info("Initiating vertex buffer");
-  auto vertexBuf =
-      factory.createVertexBuffer(MaxQuadVertices * sizeof(QuadVertex),
-                                 {
-                                     {"a_Position", Shader::DataType::Float3},
-                                     {"a_Color", Shader::DataType::Float4},
-                                     {"a_TexCoord", Shader::DataType::Float2},
-                                     {"a_TexIndex", Shader::DataType::Float},
-                                 });
+  auto vertexBuf = factory.createVertexBuffer(
+      MaxQuadVertices * sizeof(QuadVertex),
+      {
+          {"a_Position", BufferElement::Type::Float3},
+          {"a_Color", BufferElement::Type::Float4},
+          {"a_TexCoord", BufferElement::Type::Float2},
+          {"a_TexIndex", BufferElement::Type::Float},
+      });
 
   Logger::info("Initiating index buffer");
   auto quadIndices = createUnique<uint32_t[]>(MaxQuadIndices);
@@ -44,16 +44,16 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
   auto shader = factory.createShader({
       {
           .name = "u_ProjectionView",
-          .type = Shader::UniformType::UniformBufferObject,
-          .layout = {{"projectionView", Shader::DataType::Mat4}},
-          .stage = Shader::ShaderStage::Vertex,
+          .type = UniformElement::Type::UniformBufferObject,
+          .layout = {{"projectionView", BufferElement::Type::Mat4}},
+          .stage = UniformElement::Stage::Vertex,
           .count = 1,
       },
       {
           .name = "u_Textures",
-          .type = Shader::UniformType::CombinedImageSampler,
+          .type = UniformElement::Type::CombinedImageSampler,
           .layout = {},
-          .stage = Shader::ShaderStage::Fragment,
+          .stage = UniformElement::Stage::Fragment,
           .count = 16,
       },
   });
@@ -62,8 +62,7 @@ Renderer::Renderer(const Factory& factory, const PlatformProvider& provider) {
       std::move(vertexBuf), std::move(indexBuf), std::move(shader));
 
   Logger::info("Binding all texture slots with a default white texture");
-  _whiteTexture =
-      ContentManager<Texture::Texture>::create(factory, _context, 1, 1);
+  _whiteTexture = ContentManager<Texture>::create(factory, _context, 1, 1);
   _whiteTexture->initTexture(byte_cast(&WhiteTextureData));
 
   _boundTextures.resize(_totalTextureSlots);
@@ -120,19 +119,19 @@ void Renderer::setClearColor(const Vec4& color) {
 }
 
 void Renderer::drawQuad(const Mat4& transform,
-                        const Texture::Region* const textureRegion,
+                        const TextureRegion* const textureRegion,
                         const Vec4& color) {
   // Submit a draw call
   if (_quadVertexData.size() >= MaxQuadVertices)
     switchBatch();
 
-  const auto& region = textureRegion ? *textureRegion : Texture::Region{};
+  const auto& region = textureRegion ? *textureRegion : TextureRegion{};
   auto textureCoords = region.coords();
 
   float textureIndex = 0.0f;
   if (region.texture()) {
-    auto foundIndex = ListUtils::findIndex(
-        _boundTextures, [&region](const Texture::Texture* tex) {
+    auto foundIndex =
+        ListUtils::findIndex(_boundTextures, [&region](const Texture* tex) {
           return tex->resourceID() == region.texture()->resourceID();
         });
 

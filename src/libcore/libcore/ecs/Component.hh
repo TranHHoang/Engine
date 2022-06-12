@@ -30,6 +30,6 @@ struct Camera {
 
 struct Sprite {
   Vec4 color{1.0f, 0.0f, 0.0f, 1.0f};
-  Renderer::Texture::Region textureRegion{};
+  Renderer::TextureRegion textureRegion{};
 };
 } // namespace Engine::ECS::Component

@@ -5,19 +5,17 @@
 #include <libcore/renderer/Texture.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer::Texture {
-class OpenGLTexture : public Texture {
+namespace Engine::Renderer::OpenGL {
+class Texture : public Engine::Renderer::Texture {
 public:
-  OpenGLTexture(ResourceID id,
-                uint32_t width,
-                uint32_t height,
-                const Info& info);
-  void initTexture(const std::byte* data) override;
+  Texture(ResourceID id, uint32_t width, uint32_t height, const Info& info);
 
   GLuint textureID() const { return _textureID; }
+
+  void initTexture(const std::byte* data) override;
 
 private:
   GLenum _internalFormat, _dataFormat;
   GLuint _textureID;
 };
-} // namespace Engine::Renderer::Texture
+} // namespace Engine::Renderer::OpenGL
