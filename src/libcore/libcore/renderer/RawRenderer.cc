@@ -1,9 +1,9 @@
 #include <libcore/renderer/RawRenderer.hh>
 
 namespace Engine::Renderer {
-void RawRenderer::setData(Unique<Buffer::Vertex> vertexBuf,
-                          Unique<Buffer::Index> indexBuf,
-                          Unique<Shader::Shader> shader) {
+void RawRenderer::setData(Unique<VertexBuffer> vertexBuf,
+                          Unique<IndexBuffer> indexBuf,
+                          Unique<Shader> shader) {
   _vertexBuf = std::move(vertexBuf);
   _indexBuf = std::move(indexBuf);
   setupBuffers();

@@ -228,7 +228,7 @@ EmscriptenFactory::createPlatformProvider(Renderer::API api) const {
   using namespace Renderer;
 
   if (api == API::OpenGL) {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [] {
       EmscriptenWebGLContextAttributes attr;
       emscripten_webgl_init_context_attributes(&attr);

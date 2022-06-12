@@ -3,7 +3,8 @@
 
 namespace Engine::Renderer {
 enum class API { OpenGL, Vulkan, DirectX };
-constexpr inline std::string_view toString(API api) {
+
+inline constexpr std::string_view toString(API api) {
   switch (api) {
   case API::OpenGL:
     return "OpenGL";
@@ -17,9 +18,9 @@ constexpr inline std::string_view toString(API api) {
 
 class Context {
 public:
-public:
   Context(API api) : _api{api} {}
   virtual ~Context() = default;
+
   API api() const { return _api; }
 
   virtual bool init() = 0;

@@ -6,20 +6,20 @@
 #include <libcore/lib/Vector.hh>
 #include <libcore/renderer/BufferLayout.hh>
 
-namespace Engine::Renderer::Shader {
-enum class UniformType {
-  // Follow OpenGL and Vulkan naming convention
-  UniformBufferObject,
-  CombinedImageSampler
-};
-
-enum class ShaderStage { Vertex, Fragment };
-
+namespace Engine::Renderer {
 struct UniformElement {
+  enum class Type {
+    // Follow OpenGL and Vulkan naming convention
+    UniformBufferObject,
+    CombinedImageSampler
+  };
+
+  enum class Stage { Vertex, Fragment };
+
   std::string name;
-  UniformType type;
-  Buffer::Layout layout;
-  ShaderStage stage;
+  Type type;
+  BufferLayout layout;
+  Stage stage;
   uint32_t count;
   uint32_t offset = 0;
 };
@@ -44,4 +44,4 @@ private:
   Vector<UniformElement> _elements;
   uint32_t _stride;
 };
-} // namespace Engine::Renderer::Shader
+} // namespace Engine::Renderer

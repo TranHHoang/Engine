@@ -5,11 +5,11 @@
 #include <libcore/renderer/Shader.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer::Shader {
-class OpenGLShader : public Shader {
+namespace Engine::Renderer::OpenGL {
+class Shader : public Engine::Renderer::Shader {
 public:
-  OpenGLShader(const UniformLayout& layout);
-  ~OpenGLShader();
+  Shader(const UniformLayout& layout);
+  ~Shader();
 
   uint32_t programID() const { return _programID; }
 
@@ -26,4 +26,4 @@ private:
 private:
   uint32_t _programID;
 };
-} // namespace Engine::Renderer::Shader
+} // namespace Engine::Renderer::OpenGL

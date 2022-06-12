@@ -11,50 +11,52 @@
 #include <libcore/renderer/opengl/Target.hh>
 #include <libcore/renderer/opengl/Texture.hh>
 
-namespace Engine::Renderer {
-class OpenGLFactory : public Factory {
+namespace Engine::Renderer::OpenGL {
+namespace Common = Engine::Renderer;
+
+class Factory : public Common::Factory {
 public:
-  Ref<Context> createContext(const PlatformProvider& provider) const override {
-    assert(dynamic_cast<const OpenGLPlatformProvider*>(&provider));
-    return createRef<OpenGLContext>(
-        static_cast<const OpenGLPlatformProvider&>(provider));
+  Ref<Common::Context>
+  createContext(const Common::PlatformProvider& provider) const override {
+    assert(dynamic_cast<const PlatformProvider*>(&provider));
+    return createRef<Context>(static_cast<const PlatformProvider&>(provider));
   }
 
-  Unique<Buffer::Vertex>
-  createVertexBuffer(size_t size, const Buffer::Layout& layout) const override {
-    return createUnique<Buffer::OpenGLVertex>(size, layout);
+  Unique<Common::VertexBuffer>
+  createVertexBuffer(size_t size, const BufferLayout& layout) const override {
+    return createUnique<VertexBuffer>(size, layout);
   }
 
-  Unique<Buffer::Index>
+  Unique<Common::IndexBuffer>
   createIndexBuffer(std::span<uint32_t> data) const override {
-    return createUnique<Buffer::OpenGLIndex>(data);
+    return createUnique<IndexBuffer>(data);
   }
 
-  Unique<Shader::Shader>
-  createShader(const Shader::UniformLayout& layout) const override {
-    return createUnique<Shader::OpenGLShader>(layout);
+  Unique<Common::Shader>
+  createShader(const UniformLayout& layout) const override {
+    return createUnique<Shader>(layout);
   }
 
-  Ref<Texture::Texture>
-  createTexture(ResourceID resourceID,
-                const Ref<Context>&,
-                uint32_t width,
-                uint32_t height,
-                const Texture::Info& info) const override {
-    return createRef<Texture::OpenGLTexture>(resourceID, width, height, info);
+  Ref<Common::Texture> createTexture(ResourceID resourceID,
+                                     const Ref<Common::Context>&,
+                                     uint32_t width,
+                                     uint32_t height,
+                                     const Texture::Info& info) const override {
+    return createRef<Texture>(resourceID, width, height, info);
   }
 
-  Unique<RawRenderer> createRawRenderer() const override {
-    return createUnique<OpenGLRawRenderer>();
+  Unique<Common::RawRenderer> createRawRenderer() const override {
+    return createUnique<RawRenderer>();
   }
 
-  Unique<Target> createTarget(const Ref<Context>&,
-                              const Target::Info& info) const override {
-    return createUnique<OpenGLTarget>(info);
+  Unique<Common::Target> createTarget(const Ref<Common::Context>&,
+                                      const Target::Info& info) const override {
+    return createUnique<Target>(info);
   }
 
-  Ref<Target> createDefaultTarget(const Target::Info& info) const override {
-    return createRef<OpenGLDefaultTarget>(info);
+  Ref<Common::Target>
+  createDefaultTarget(const Target::Info& info) const override {
+    return createRef<DefaultTarget>(info);
   }
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

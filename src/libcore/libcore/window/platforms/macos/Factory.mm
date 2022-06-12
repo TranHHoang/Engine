@@ -136,7 +136,7 @@ MacOSFactory::createPlatformProvider(Renderer::API api) const {
 
   switch (api) {
   case API::OpenGL: {
-    auto provider = createUnique<OpenGLPlatformProvider>();
+    auto provider = createUnique<OpenGL::PlatformProvider>();
     provider->createContext = [this] {
       [[static_cast<NSOpenGLView*>(_view) openGLContext] makeCurrentContext];
       return _view;

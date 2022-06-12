@@ -1,32 +1,32 @@
 #include <libcore/renderer/opengl/Buffer.hh>
 
-namespace Engine::Renderer::Buffer {
-OpenGLVertex::OpenGLVertex(size_t size, const Layout& layout)
-    : Vertex{size, layout} {
+namespace Engine::Renderer::OpenGL {
+VertexBuffer::VertexBuffer(size_t size, const BufferLayout& layout)
+    : Renderer::VertexBuffer{size, layout} {
   glGenBuffers(1, &_bufID);
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
   glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 
-OpenGLVertex::~OpenGLVertex() {
+VertexBuffer::~VertexBuffer() {
   glDeleteBuffers(1, &_bufID);
 }
 
-void OpenGLVertex::bind() const {
+void VertexBuffer::bind() const {
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
 }
 
-void OpenGLVertex::unbind() const {
+void VertexBuffer::unbind() const {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void OpenGLVertex::setData(MemBlock data) {
+void VertexBuffer::setData(MemBlock data) {
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
   glBufferSubData(GL_ARRAY_BUFFER, 0, data.size(), data.data());
 }
 
-OpenGLIndex::OpenGLIndex(std::span<const uint32_t> indices)
-    : Index{indices.size()} {
+IndexBuffer::IndexBuffer(std::span<const uint32_t> indices)
+    : Renderer::IndexBuffer{indices.size()} {
   glGenBuffers(1, &_bufID);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufID);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
@@ -35,15 +35,15 @@ OpenGLIndex::OpenGLIndex(std::span<const uint32_t> indices)
                GL_STATIC_DRAW);
 }
 
-OpenGLIndex::~OpenGLIndex() {
+IndexBuffer::~IndexBuffer() {
   glDeleteBuffers(1, &_bufID);
 }
 
-void OpenGLIndex::bind() const {
+void IndexBuffer::bind() const {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufID);
 }
 
-void OpenGLIndex::unbind() const {
+void IndexBuffer::unbind() const {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
-} // namespace Engine::Renderer::Buffer
+} // namespace Engine::Renderer::OpenGL

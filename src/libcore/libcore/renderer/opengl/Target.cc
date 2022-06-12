@@ -1,26 +1,26 @@
 #include <libcore/lib/Assert.hh>
 #include <libcore/renderer/opengl/Target.hh>
 
-namespace Engine::Renderer {
-OpenGLTarget::OpenGLTarget(const Info& info) : Target{info} {
+namespace Engine::Renderer::OpenGL {
+Target::Target(const Info& info) : Renderer::Target{info} {
   invalidate();
 }
 
-OpenGLTarget::~OpenGLTarget() {
+Target::~Target() {
   glDeleteFramebuffers(1, &_framebufferID);
   glDeleteTextures(1, &_colorAttachmentTexID);
 }
 
-void OpenGLTarget::bind() {
+void Target::bind() {
   glBindFramebuffer(GL_FRAMEBUFFER, _framebufferID);
   glViewport(0, 0, _info.width, _info.height);
 }
 
-void OpenGLTarget::unbind() {
+void Target::unbind() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void OpenGLTarget::invalidate() {
+void Target::invalidate() {
   if (_framebufferID) { // Delete existing framebuffer
     glDeleteFramebuffers(1, &_framebufferID);
     glDeleteTextures(1, &_colorAttachmentTexID);
@@ -59,4 +59,4 @@ void OpenGLTarget::invalidate() {
   // Unbind this framebuffer
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

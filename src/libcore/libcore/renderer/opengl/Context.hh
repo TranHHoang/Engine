@@ -2,18 +2,18 @@
 #include <libcore/renderer/Context.hh>
 #include <libcore/renderer/opengl/PlatformProvider.hh>
 
-namespace Engine::Renderer {
-class OpenGLContext : public Context {
+namespace Engine::Renderer::OpenGL {
+class Context : public Engine::Renderer::Context {
 public:
-  OpenGLContext(const OpenGLPlatformProvider& provider, API api = API::OpenGL)
-      : Context{api},
+  Context(const PlatformProvider& provider)
+      : Engine::Renderer::Context{API::OpenGL},
         _provider{provider} {}
-  ~OpenGLContext();
+  ~Context();
 
   bool init() override;
 
 private:
-  OpenGLPlatformProvider _provider;
+  PlatformProvider _provider;
   std::any _context;
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL

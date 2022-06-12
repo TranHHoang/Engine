@@ -2,11 +2,11 @@
 #include <libcore/renderer/Target.hh>
 #include <libcore/renderer/opengl/Glad.hh>
 
-namespace Engine::Renderer {
-class OpenGLTarget : public Target {
+namespace Engine::Renderer::OpenGL {
+class Target : public Engine::Renderer::Target {
 public:
-  OpenGLTarget(const Info& info);
-  ~OpenGLTarget();
+  Target(const Info& info);
+  ~Target();
 
   void bind() override;
   void unbind() override;
@@ -15,4 +15,4 @@ public:
 private:
   GLuint _framebufferID, _colorAttachmentTexID;
 };
-} // namespace Engine::Renderer
+} // namespace Engine::Renderer::OpenGL
