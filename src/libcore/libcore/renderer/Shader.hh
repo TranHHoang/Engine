@@ -10,9 +10,6 @@ public:
   Shader(const UniformLayout& layout) : _layout{layout} {}
   virtual ~Shader() = default;
 
-  virtual void setupLayout() {}
-  virtual void bind() const = 0;
-  virtual void unbind() const = 0;
   virtual void setMat4(std::string_view name, const Mat4& mat) = 0;
   virtual int maxTextureSlots() const = 0;
 

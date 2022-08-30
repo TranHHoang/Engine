@@ -27,14 +27,6 @@ Shader::~Shader() {
   glDeleteProgram(_programID);
 }
 
-void Shader::bind() const {
-  glUseProgram(_programID);
-}
-
-void Shader::unbind() const {
-  glUseProgram(0);
-}
-
 void Shader::setMat4(std::string_view name, const Mat4& mat) {
   GLint location = glGetUniformLocation(_programID, name.data());
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(mat));

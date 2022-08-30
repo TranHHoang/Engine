@@ -12,14 +12,6 @@ VertexBuffer::~VertexBuffer() {
   glDeleteBuffers(1, &_bufID);
 }
 
-void VertexBuffer::bind() const {
-  glBindBuffer(GL_ARRAY_BUFFER, _bufID);
-}
-
-void VertexBuffer::unbind() const {
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
 void VertexBuffer::setData(MemBlock data) {
   glBindBuffer(GL_ARRAY_BUFFER, _bufID);
   glBufferSubData(GL_ARRAY_BUFFER, 0, data.size(), data.data());
@@ -37,13 +29,5 @@ IndexBuffer::IndexBuffer(std::span<const uint32_t> indices)
 
 IndexBuffer::~IndexBuffer() {
   glDeleteBuffers(1, &_bufID);
-}
-
-void IndexBuffer::bind() const {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufID);
-}
-
-void IndexBuffer::unbind() const {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 } // namespace Engine::Renderer::OpenGL

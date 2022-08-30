@@ -6,14 +6,6 @@ VertexArray::VertexArray() {
   glGenVertexArrays(1, &_arrayID);
 }
 
-void VertexArray::bind() const {
-  glBindVertexArray(_arrayID);
-}
-
-void VertexArray::unbind() const {
-  glBindVertexArray(0);
-}
-
 static constexpr GLenum toGLType(BufferElement::Type type) {
   switch (type) {
   case BufferElement::Type::Float:
@@ -38,15 +30,15 @@ static constexpr GLenum toGLType(BufferElement::Type type) {
   return 0;
 }
 
-void VertexArray::setBuffers(const VertexBuffer& vertexBuf,
-                             const IndexBuffer& indexBuf) {
+void VertexArray::setBuffers(const OpenGL::VertexBuffer& vertexBuf,
+                             const OpenGL::IndexBuffer& indexBuf) {
   // Bind vertex buf
   const auto& layout = vertexBuf.layout();
   assert(layout.elements().size());
 
   glBindVertexArray(_arrayID);
-  vertexBuf.bind();
-  indexBuf.bind();
+  glBindBuffer(GL_ARRAY_BUFFER, vertexBuf.bufferID());
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuf.bufferID());
 
   for (const auto& e : layout.elements()) {
     auto index = static_cast<int>(&e - layout.elements().data());

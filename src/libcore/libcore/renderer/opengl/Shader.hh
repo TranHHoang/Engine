@@ -13,8 +13,6 @@ public:
 
   uint32_t programID() const { return _programID; }
 
-  void bind() const override;
-  void unbind() const override;
   void setMat4(std::string_view name, const Mat4& mat) override;
   int maxTextureSlots() const override;
 

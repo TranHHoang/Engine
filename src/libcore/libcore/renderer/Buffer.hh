@@ -15,8 +15,6 @@ public:
 
   const BufferLayout& layout() const { return _layout; }
 
-  virtual void bind() const = 0;
-  virtual void unbind() const = 0;
   virtual void setData(MemBlock data) = 0;
 
 protected:
@@ -33,9 +31,6 @@ public:
   virtual ~IndexBuffer() = default;
 
   size_t size() const { return _size; }
-
-  virtual void bind() const = 0;
-  virtual void unbind() const = 0;
 
 private:
   size_t _size;

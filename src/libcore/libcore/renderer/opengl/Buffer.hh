@@ -10,10 +10,9 @@ class VertexBuffer : public Engine::Renderer::VertexBuffer {
 public:
   VertexBuffer(size_t size, const BufferLayout& layout);
   ~VertexBuffer();
-
-  void bind() const override;
-  void unbind() const override;
   void setData(MemBlock data) override;
+
+  GLuint bufferID() const { return _bufID; }
 
 private:
   GLuint _bufID;
@@ -24,8 +23,7 @@ public:
   IndexBuffer(std::span<const uint32_t> indicies);
   ~IndexBuffer();
 
-  virtual void bind() const override;
-  virtual void unbind() const override;
+  GLuint bufferID() const { return _bufID; }
 
 private:
   GLuint _bufID;

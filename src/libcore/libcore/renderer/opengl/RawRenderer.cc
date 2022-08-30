@@ -14,22 +14,23 @@ RawRenderer::RawRenderer() {
 }
 
 void RawRenderer::prepareScene() {
-  _shader->bind();
+  assert(dynamic_cast<OpenGL::Shader*>(_shader.get()));
+  glUseProgram(static_cast<OpenGL::Shader*>(_shader.get())->programID());
 }
 
 void RawRenderer::beginScene() {
   _target->bind();
-  _vertexArray->bind();
+  glBindVertexArray(_vertexArray->arrayID());
   glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void RawRenderer::endScene() {
   _target->unbind();
-  _vertexArray->unbind();
+  glBindVertexArray(0);
 }
 
 void RawRenderer::destroyScene() {
-  _shader->unbind();
+  glUseProgram(0);
 }
 
 void RawRenderer::setupBuffers() {
@@ -42,7 +43,9 @@ void RawRenderer::setupShader() {
   Vector<int> samplers{16};
   std::iota(samplers.begin(), samplers.end(), 0);
 
-  _shader->bind();
+  assert(dynamic_cast<OpenGL::Shader*>(_shader.get()));
+  glUseProgram(static_cast<OpenGL::Shader*>(_shader.get())->programID());
+
   GLint location = glGetUniformLocation(
       static_cast<Shader*>(_shader.get())->programID(), "u_Textures");
   glUniform1iv(
