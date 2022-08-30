@@ -11,10 +11,13 @@ struct UniformElement {
   enum class Type {
     // Follow OpenGL and Vulkan naming convention
     UniformBufferObject,
-    CombinedImageSampler
+    CombinedImageSampler,
   };
 
-  enum class Stage { Vertex, Fragment };
+  enum class Stage {
+    Vertex,
+    Fragment,
+  };
 
   std::string name;
   Type type;

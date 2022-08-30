@@ -9,8 +9,8 @@
 #include <libcore/lib/Assert.hh>
 #include <libcore/lib/File.hh>
 #include <libcore/lib/Logger.hh>
+#include <libcore/renderer/GLSL.hh>
 #include <libcore/renderer/opengl/Shader.hh>
-#include <libcore/renderer/opengl/ShaderSource.hh>
 
 namespace Engine::Renderer::OpenGL {
 Shader::Shader(const UniformLayout& layout) : Renderer::Shader{layout} {
@@ -47,7 +47,7 @@ std::string Shader::preprocessShader(GLuint type) const {
 #else
         "#version 330 core";
 #endif
-    return fmt::format(vertexSrc, "version"_a = version);
+    return fmt::format(glVertexSrc, "version"_a = version);
   } else {
     int maxSlots = maxTextureSlots();
     std::string_view version =
@@ -65,7 +65,7 @@ std::string Shader::preprocessShader(GLuint type) const {
           i);
     }
     outputColor += "}";
-    return fmt::format(fragmentSrc,
+    return fmt::format(glFragmentSrc,
                        "version"_a = version,
                        "maxTextureSlots"_a = maxTextureSlots(),
                        "outputColor"_a = outputColor);

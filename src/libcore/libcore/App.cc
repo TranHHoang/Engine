@@ -1,5 +1,3 @@
-#include <variant>
-
 #include <libcore/App.hh>
 #include <libcore/Platform.hh>
 #include <libcore/lib/Logger.hh>

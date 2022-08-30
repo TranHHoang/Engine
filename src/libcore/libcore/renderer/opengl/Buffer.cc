@@ -22,7 +22,7 @@ IndexBuffer::IndexBuffer(std::span<const uint32_t> indices)
   glGenBuffers(1, &_bufID);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufID);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-               indices.size() * sizeof(uint32_t),
+               indices.size_bytes(),
                indices.data(),
                GL_STATIC_DRAW);
 }
