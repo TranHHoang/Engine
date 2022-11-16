@@ -13,7 +13,7 @@ public:
   using value_type = T;
 
   Vector() = default;
-  Vector(size_t count) : _vec{count} {}
+  Vector(size_t count) { _vec.reserve(count); }
   Vector(std::initializer_list<T>&& list) : _vec{std::move(list)} {}
   Vector(const std::initializer_list<T>& list) : _vec{list} {}
   Vector(const std::vector<T>& vec) : _vec{vec} {}
@@ -41,7 +41,7 @@ public:
     return _vec.size() > 0 ? _vec.back() : std::nullopt;
   }
 
-  // Functional
+  // Functional mapping
   template <typename Fn, typename U = std::invoke_result_t<Fn, T>>
   Vector<U> map(Fn fn) const {
     std::vector<U> temp{_vec.size()};

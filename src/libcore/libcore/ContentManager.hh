@@ -3,7 +3,7 @@
 #include <string_view>
 
 #include <libcore/Resource.hh>
-#include <libcore/lib/Map.hh>
+#include <libcore/lib/HashMap.hh>
 #include <libcore/lib/Memory.hh>
 #include <libcore/renderer/Context.hh>
 #include <libcore/renderer/Factory.hh>
@@ -24,7 +24,7 @@ public:
                      Args&&... args);
 
 private:
-  inline static Map<std::string, Ref<T>> _resources;
+  inline static HashMap<std::string, Ref<T>> _resources;
   inline static ResourceID _uuid{0};
 };
 
